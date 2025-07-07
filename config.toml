@@ -1,0 +1,83 @@
+theme="fleet_dark"
+# theme="jetbrains_dark"
+
+[editor]
+line-number = "relative"
+mouse = false
+# popup-border = "all"
+
+
+[editor.indent-guides]
+render = true
+# character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽"
+# character = "┊" # Some characters that work well: "▏", "┆", "┊", "⸽"
+skip-levels = 1
+
+[editor.lsp]
+enable = true
+snippets = true
+display-inlay-hints = true
+auto-signature-help = true
+
+[editor.statusline.mode]
+insert = "INSERT"
+normal = "NORMAL"
+select = "SELECT" 
+
+[editor.statusline]
+left = ["mode","read-only-indicator","file-name","file-modification-indicator"]
+right = ["spinner","diagnostics","position-percentage","spacer","version-control"]
+
+
+[keys.normal]
+# Muscle memory
+# {} have no conflicts..
+"{" = ["goto_prev_paragraph"]
+"}" = ["goto_next_paragraph"]
+0 = "goto_first_nonwhitespace"
+"$" = "goto_line_end"
+V = ["select_mode", "extend_to_line_bounds"]
+# Escape the madness! No more fighting with the cursor! Or with multiple cursors!
+esc = ["collapse_selection", "keep_primary_selection"]
+
+[keys.normal."-"]
+"f" = "file_picker_in_current_buffer_directory"
+# "-" = "file_explorer_in_current_buffer_directory"
+
+"-" = [
+  ':sh rm -f /tmp/unique-file',
+  ':insert-output yazi %{buffer_name} --chooser-file=/tmp/unique-file',
+  ':insert-output echo "\x1b[?1049h\x1b[?2004h" > /dev/tty',
+  ':open %sh{cat /tmp/unique-file}',
+  ':redraw',
+]
+w = {w = ":w", q = ":wq"}
+q = ":q!"
+v = ":vsplit"
+h = ":hsplit"
+c = {o =":config-open", r = ":config-reload"}
+g = [":vsplit-new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
+
+# "-" = ":sh zellij run -n Yazi -c -f -x 10%% -y 10%% --width 80%% --height 80%% -- bash ~/.config/helix/yazi-picker.sh open %{buffer_name}"
+# old
+# C-y = ":sh zellij run -n Yazi -c -f -x 10% -y 10% --width 80% --height 80% -- bash ~/.config/helix/yazi-picker.sh open"
+
+[keys.select]
+"{" = ["extend_to_line_bounds", "goto_prev_paragraph"]
+"}" = ["extend_to_line_bounds", "goto_next_paragraph"]
+
+u = ["switch_to_lowercase", "collapse_selection", "normal_mode"]
+U = ["switch_to_uppercase", "collapse_selection", "normal_mode"]
+
+# Make selecting lines in visual mode behave sensibly
+k = ["extend_line_up", "extend_to_line_bounds"]
+j = ["extend_line_down", "extend_to_line_bounds"]
+# apparently this is a big problem??
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = false
