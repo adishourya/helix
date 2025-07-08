@@ -24,18 +24,37 @@
 # language-servers = ["pyrefly"]
 # 
 # ========================= Based Pyright===========
-[language-server.pyrefly]
-command = "basedpyright"
-args = ["lsp"]
 
-[[language]]
-name = "python"
-language-servers = ["basedpyright"]
-
-#------- from docs... did not like it though
 # [language-server.basedpyright]
 # command = "basedpyright-langserver"
 # args = ["--stdio"]
 
 # [language-server.basedpyright.config]
 # basedpyright.analysis.diagnosticMode = "openFilesOnly"
+# basedpyright.diagnostic.reportUnknownParameterType = "False"
+# basedpyright.diagnostic.reportUnknownArgumentType = "False"
+# basedpyright.diagnostic.reportUnknownVariableType = "False"
+# basedpyright.diagnostic.reportUnknownLambdaType = "False"
+
+# reportMissingParameterType = "False"
+
+# [[language]]
+# name = "python"
+# language-servers = ["basedpyright"]
+
+
+[language-server.basedpyright]
+command = "basedpyright-langserver"
+args = ["--stdio"]
+
+[language-server.basedpyright.config.basedpyright]
+analysis.diagnosticMode = "openFilesOnly"
+diagnostics.reportUnknownParameterType = "none"
+diagnostics.reportUnknownArgumentType = "none"
+diagnostics.reportUnknownLambdaType = "none"
+diagnostics.reportUnknownVariableType = "none"
+diagnostics.reportUnknownMemberType = "none"
+
+[[language]]
+name = "python"
+language-servers = ["basedpyright"]
