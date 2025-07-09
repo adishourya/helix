@@ -91,7 +91,7 @@ g = [":vsplit-new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
 # C-y = ":sh zellij run -n Yazi -c -f -x 10% -y 10% --width 80% --height 80% -- bash ~/.config/helix/yazi-picker.sh open"
 
 [keys.select]
-"q" = ":reflow"
+"q" = [":reflow","collapse_selection"]
 "{" = ["extend_to_line_bounds", "goto_prev_paragraph"]
 "}" = ["extend_to_line_bounds", "goto_next_paragraph"]
 
