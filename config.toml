@@ -1,4 +1,5 @@
 theme="fleet_dark"
+# theme="catppuccin_mocha"
 # theme="carbonfox"
 # theme="jetbrains_dark"
 
@@ -36,10 +37,10 @@ display-inlay-hints = true
 auto-signature-help = true
 display-progress-messages=true
 
-[editor.statusline.mode]
-insert = "✏️"
-normal = "🐧"
-select = "👓" 
+# [editor.statusline.mode]
+# insert = "Ins"
+# normal = "Nor"
+# select = "Sel" 
 
 [editor.statusline]
 left = ["mode","spinner"]
