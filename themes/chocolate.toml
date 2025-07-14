@@ -92,7 +92,9 @@
 
 [palette]
 Red       = "#c65f5f"
-Green     = "#83c092"
+# Green     = "#83c092"
+Green     = "#859e82"
+
 Yellow    = "#d9b27c"
 Blue      = "#728797"
 # Blue      = "#5e81ac"
