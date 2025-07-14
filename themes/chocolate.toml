@@ -14,7 +14,7 @@
 "string.regexp" = "Aqua"
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] }
 
-"comment" = "Gray" # .line
+"comment" = {fg = "Gray", modifiers = ["italic"]} # .line
 "variable" = "Foreground2"
 "variable.builtin" = { fg = "Beige" }
 "variable.other.member" = "Aqua"
@@ -75,7 +75,7 @@
 "ui.text.focus" = { fg = "Background", bg = "Yellow" }
 
 "ui.virtual" = "Foreground2"
-"ui.virtual.inlay-hint" = { fg = "Gray"}
+"ui.virtual.inlay-hint" = { fg = "Gray",modifier = ["bold"]}
 "ui.virtual.ruler" = { bg = "Background2" }
 
 "hint" = "Foreground2"

@@ -17,7 +17,6 @@ completion-trigger-len = 2 # default 2
 bufferline = "always" # so that we can get away without putting the file path in the statuline
 color-modes = true
 # popup-border = "all"
-#
 
 # [editor.inline-diagnostics]
 # cursor-line = "hint"
@@ -34,7 +33,7 @@ space = "none" # there is no settings for trailing whitespaces :(
 
 
 [editor.indent-guides]
-render = true
+# render = true
 # character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽"
 character = "┊" # Some characters that work well: "▏", "┆", "┊", "⸽"
 skip-levels = 1
@@ -78,7 +77,7 @@ esc = ["collapse_selection", "keep_primary_selection"]
 "[" = ":buffer-previous"
 
 [keys.normal."-"]
-"t" = {l = ":theme rose_pine_dawn",d=":theme fleet_dark"}
+"t" = {l = ":theme rose_pine_dawn", d=":theme chocolate", f =":theme fleet_dark"}
 # quick eb
 # we will probably remove it ... better not to practice this
 "f" = "file_picker_in_current_buffer_directory"
