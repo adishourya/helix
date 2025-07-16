@@ -1,8 +1,8 @@
 "attribute" = "Green"
 
-"type" = "Blue"
-"type.return" = "Blue"
-"type.parameter" = "Blue"
+"type" = "Green"
+"type.return" = "Green"
+"type.parameter" = "Green"
 "constructor" = "Orange"
 
 "constant" = "Beige"
@@ -13,6 +13,10 @@
 "string" = "Green"
 "string.regexp" = "Aqua"
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] }
+
+
+"ui.bufferline" = { fg = "Foreground2", bg = "Background2" }
+"ui.bufferline.active" = { fg = "Orange", bg = "Background2" }
 
 "comment" = {fg = "Gray", modifiers = ["italic"]} # .line
 "variable" = "Foreground2"
@@ -25,9 +29,9 @@
 "function.macro" = "Red"
 "function.builtin" = "Beige"
 "function.special" = "Orange"
-"tag" = "Blue"
+"tag" = "Green"
 "special" = "Red"
-"namespace" = "Blue"
+"namespace" = "Orange"
 
 "markup.bold" = { modifiers = ["bold"] }
 "markup.italic" = { modifiers = ["italic"] }
@@ -50,8 +54,8 @@
 
 "ui.background" = { bg = "Background" }
 "ui.statusline" = { fg = "Foreground1", bg = "Background2" }
-"ui.statusline.normal" = { fg = "Foreground1", bg = "Background2" }
 "ui.statusline.inactive" = { fg = "Foreground2" }
+"ui.statusline.normal" = { fg = "Background", bg = "Green" }
 "ui.statusline.insert" = { fg = "Background", bg = "Blue" }
 "ui.statusline.select" = { fg = "Background", bg = "Yellow" }
 
@@ -75,7 +79,7 @@
 "ui.text.focus" = { fg = "Background", bg = "Yellow" }
 
 "ui.virtual" = "Foreground2"
-"ui.virtual.inlay-hint" = { fg = "Gray",modifier = ["bold"]}
+"ui.virtual.inlay-hint" = { fg = "HGray",modifiers = ["bold"]}
 "ui.virtual.ruler" = { bg = "Background2" }
 
 "hint" = "Foreground2"
@@ -83,10 +87,10 @@
 "warning" = "Orange"
 "error" = "Red"
 
-"diagnostic.hint" = { underline = { color = "Foreground2", style = "line" } }
-"diagnostic.info" = { underline = { color = "Purple", style = "line" } }
-"diagnostic.warning" = { underline = { color = "Orange", style = "line" } }
-"diagnostic.error" = { underline = { color = "Red", style = "line" } }
+"diagnostic.hint" = { underline = { color = "Foreground2", style = "curl" } }
+"diagnostic.info" = { underline = { color = "Purple", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "Orange", style = "curl" } }
+"diagnostic.error" = { underline = { color = "Red", style = "curl" } }
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
 "diagnostic.deprecated" = { modifiers = ["crossed_out"] }
 
@@ -107,6 +111,8 @@ Beige     = "#ab9382"
 Orange    = "#d08770"
 
 Gray              = "#3d3837"
+HGray             = "#6a4f3b"
+# HGray             = "#805b4f"
 Background        = "#252221"
 Background1       = "#262322"
 Background2       = "#302c2b"
