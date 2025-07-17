@@ -1,6 +1,6 @@
 "attribute" = "Green"
 
-"type" = "Green"
+"type" = "Yellow"
 "type.return" = "Green"
 "type.parameter" = "Green"
 "constructor" = "Orange"
@@ -18,7 +18,7 @@
 "ui.bufferline" = { fg = "Foreground2", bg = "Background2" }
 "ui.bufferline.active" = { fg = "Orange", bg = "Background2" }
 
-"comment" = {fg = "Gray", modifiers = ["italic"]} # .line
+"comment" = {fg = "Gray2", modifiers = ["italic"]} # .line
 "variable" = "Foreground2"
 "variable.builtin" = { fg = "Beige" }
 "variable.other.member" = "Aqua"
@@ -29,7 +29,9 @@
 "function.macro" = "Red"
 "function.builtin" = "Beige"
 "function.special" = "Orange"
+
 "tag" = "Green"
+# "tag" = "Grey2"
 "special" = "Red"
 "namespace" = "Orange"
 
@@ -76,9 +78,11 @@
 "ui.menu.scroll" = { fg = "Foreground2" }
 
 "ui.text" = "Foreground"
-"ui.text.focus" = { fg = "Background", bg = "Yellow" }
+"ui.text.focus" = { fg = "Yellow", bg = "Background3" }
+"ui.text.directory" = { fg = "Orange"}
 
 "ui.virtual" = "Foreground2"
+"ui.virtual.indent-guide" = { fg = "Gray" }
 "ui.virtual.inlay-hint" = { fg = "HGray",modifiers = ["bold"]}
 "ui.virtual.ruler" = { bg = "Background2" }
 
@@ -89,7 +93,7 @@
 
 "diagnostic.hint" = { underline = { color = "Foreground2", style = "curl" } }
 "diagnostic.info" = { underline = { color = "Purple", style = "curl" } }
-"diagnostic.warning" = { underline = { color = "Orange", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "Yellow", style = "curl" } }
 "diagnostic.error" = { underline = { color = "Red", style = "curl" } }
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
 "diagnostic.deprecated" = { modifiers = ["crossed_out"] }
@@ -101,9 +105,9 @@ Green     = "#859e82"
 
 Yellow    = "#d9b27c"
 Blue      = "#728797"
-# Blue      = "#5e81ac"
-# Purple    = "#998396"
+Blue2      = "#5e81ac"
 Purple    = "#D699b6"
+Purple2    = "#998396"
 # Aqua      = "#7fbbb3"
 Aqua      = "#829e9b"
 Beige     = "#ab9382"
@@ -111,6 +115,8 @@ Beige     = "#ab9382"
 Orange    = "#d08770"
 
 Gray              = "#3d3837"
+Gray2             = "#827272"
+Gray3             = "#655555"
 HGray             = "#6a4f3b"
 # HGray             = "#805b4f"
 Background        = "#252221"
