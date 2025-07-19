@@ -18,6 +18,10 @@
 "ui.bufferline" = { fg = "Foreground2", bg = "Background2" }
 "ui.bufferline.active" = { fg = "Orange", bg = "Background2" }
 
+# "ui.gutter" = {bg= "Background2"}
+# "ui.gutter.selected" = {bg = "Background2"}
+"ui.virtual.jump-label" = {fg = "Orange", bg = "Background3"}
+
 "comment" = {fg = "Gray2", modifiers = ["italic"]} # .line
 "variable" = "Foreground2"
 "variable.builtin" = { fg = "Beige" }
@@ -62,13 +66,16 @@
 "ui.statusline.select" = { fg = "Background", bg = "Yellow" }
 
 "ui.cursor" = { modifiers = ["reversed"] }
-"ui.cursor.match" = { fg = "Foreground", bg = "Background3" }
+"ui.cursor.match" = { fg = "Orange", bg = "Background3" }
 "ui.selection" = { fg = "Foreground", bg = "Background2" }
 "ui.selection.primary" = { fg = "Foreground", bg = "Background4" }
 
-"ui.cursorline" = { bg = "Background1" }
-"ui.linenr" = "Foreground2"
-"ui.linenr.selected" = "Foreground"
+"ui.cursorline" = { bg = "Background" }
+"ui.linenr" = "Gray"
+"ui.linenr.selected" = "Yellow"
+
+"ui.picker.header.column" = "Purple"
+"ui.picker.header.column.active" = "Green"
 
 "ui.popup" = { fg = "Foreground", bg = "Background2" }
 "ui.window" = { fg = "Gray" }
@@ -91,10 +98,10 @@
 "warning" = "Orange"
 "error" = "Red"
 
-"diagnostic.hint" = { underline = { color = "Foreground2", style = "curl" } }
-"diagnostic.info" = { underline = { color = "Purple", style = "curl" } }
-"diagnostic.warning" = { underline = { color = "Yellow", style = "curl" } }
-"diagnostic.error" = { underline = { color = "Red", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "Foreground2", style = "line" } }
+"diagnostic.info" = { underline = { color = "Purple", style = "line" } }
+"diagnostic.warning" = { underline = { color = "Yellow", style = "line" } }
+"diagnostic.error" = { underline = { color = "Red", style = "line" }}
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
 "diagnostic.deprecated" = { modifiers = ["crossed_out"] }
 
