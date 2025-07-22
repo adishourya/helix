@@ -1,5 +1,6 @@
 # theme="fleet_dark"
 theme="chocolate"
+# theme="transparent_theme"
 # theme="rose_pine"
 # theme="catppuccin_mocha"
 # theme="carbonfox"
@@ -11,7 +12,7 @@ line-number = "relative" # or keep absolute..
 mouse = false # but we can still scroll yay!
 scrolloff = 1 # leave 1 to see decorator attached and stuff
 middle-click-paste = false # this is the most horrible thing ever...
-cursorline = true # default : false... nande ??
+cursorline = false # default : false... nande ??
 # gutters = ["diff","line-numbers","spacer","diagnostics","spacer"]
 gutters = ["diff","line-numbers","spacer"] # hate when the gutter gets really big
 completion-trigger-len = 2 # default 2
@@ -31,9 +32,9 @@ space = "none" # there is no settings for trailing whitespaces :(
 
 [editor.indent-guides]
 render = true
-# character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽"
-character = "┆" # Some characters that work well: "▏", "┆", "┊", "⸽"
-skip-levels = 0
+character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽"
+# character = "┆" # Some characters that work well: "▏", "┆", "┊", "⸽"
+skip-levels = 1
 
 [editor.lsp]
 enable = true

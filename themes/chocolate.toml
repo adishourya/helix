@@ -9,7 +9,7 @@
 "constant.builtin.boolean" = "Aqua"
 "constant.character" = "Yellow"
 "constant.character.escape" = "Aqua"
-"constant.numeric" = "Yellow"
+"constant.numeric" = "Beige"
 "string" = "Green"
 "string.regexp" = "Aqua"
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] }
@@ -22,12 +22,12 @@
 # "ui.gutter.selected" = {bg = "Background2"}
 "ui.virtual.jump-label" = {fg = "Orange", bg = "Background3"}
 
-"comment" = {fg = "Gray2", modifiers = ["italic"]} # .line
+"comment" = {fg = "Background3", modifiers = ["italic"]} # .line
 "variable" = "Foreground2"
 "variable.builtin" = { fg = "Beige" }
 "variable.other.member" = "Aqua"
 "label" = "Yellow"
-"keyword" = "Purple"
+"keyword" = "Red2"
 "function" = "Yellow"
 "function.declaration" = "Foreground"
 "function.macro" = "Red"
@@ -48,11 +48,11 @@
 "markup.list.unnumbered" = "Aqua"
 "markup.link.url" = { fg = "Aqua", modifiers = ['italic', 'underlined'] }
 "markup.link.text" = "Blue"
-"markup.link.label" = "Purple"
+"markup.link.label" = "Red2"
 "markup.quote" = "Beige"
 "markup.raw" = "Beige"
 "markup.raw.inline" = "Aqua"
-"markup.raw.block" = "Purple"
+"markup.raw.block" = "Red2"
 
 "diff.plus" = "Green"
 "diff.minus" = "Red"
@@ -61,20 +61,20 @@
 "ui.background" = { bg = "Background" }
 "ui.statusline" = { fg = "Foreground1", bg = "Background2" }
 "ui.statusline.inactive" = { fg = "Foreground2" }
-"ui.statusline.normal" = { fg = "Background", bg = "Green" }
-"ui.statusline.insert" = { fg = "Background", bg = "Blue" }
-"ui.statusline.select" = { fg = "Background", bg = "Yellow" }
+"ui.statusline.normal" = { fg = "Background", bg = "Yellow" }
+"ui.statusline.insert" = { fg = "Background", bg = "Red" }
+"ui.statusline.select" = { fg = "Background", bg = "Orange" }
 
 "ui.cursor" = { modifiers = ["reversed"] }
 "ui.cursor.match" = { fg = "Orange", bg = "Background3" }
 "ui.selection" = { fg = "Foreground", bg = "Background2" }
 "ui.selection.primary" = { fg = "Foreground", bg = "Background4" }
 
-"ui.cursorline" = { bg = "Background" }
-"ui.linenr" = "Gray"
+"ui.cursorline" = { bg = "Background1" }
+"ui.linenr" = "Background3"
 "ui.linenr.selected" = "Yellow"
 
-"ui.picker.header.column" = "Purple"
+"ui.picker.header.column" = "Red2"
 "ui.picker.header.column.active" = "Green"
 
 "ui.popup" = { fg = "Foreground", bg = "Background2" }
@@ -89,48 +89,67 @@
 "ui.text.directory" = { fg = "Orange"}
 
 "ui.virtual" = "Foreground2"
-"ui.virtual.indent-guide" = { fg = "Gray" }
-"ui.virtual.inlay-hint" = { fg = "HGray",modifiers = ["bold"]}
+"ui.virtual.indent-guide" = { fg = "Background4",modifiers=["dim"] }
+"ui.virtual.inlay-hint" = { fg = "Background6"}
 "ui.virtual.ruler" = { bg = "Background2" }
 
 "hint" = "Foreground2"
-"info" = "Purple"
+"info" = "Red2"
 "warning" = "Orange"
 "error" = "Red"
 
 "diagnostic.hint" = { underline = { color = "Foreground2", style = "line" } }
-"diagnostic.info" = { underline = { color = "Purple", style = "line" } }
+"diagnostic.info" = { underline = { color = "Red2", style = "line" } }
 "diagnostic.warning" = { underline = { color = "Yellow", style = "line" } }
 "diagnostic.error" = { underline = { color = "Red", style = "line" }}
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
 "diagnostic.deprecated" = { modifiers = ["crossed_out"] }
 
 [palette]
-Red       = "#c65f5f"
-# Green     = "#83c092"
-Green     = "#859e82"
+# Red       = "#c65f5f"
 
-Yellow    = "#d9b27c"
-Blue      = "#728797"
+Red       = "#cf6363" # hsl 0, 53, 60
+Red2    = "#bf616a"
+
+# Green     = "#83c092"
+Green     = "#99b77f"
+# Green     = "#83cf63"
+
+# Yellow    = "#d9b27c"
+Yellow    = "#cfa663"
+# Yellow    = "#dca22e"
+# Blue      = "#6371cf"
 Blue2      = "#5e81ac"
-Purple    = "#D699b6"
-Purple2    = "#998396"
+
+# Purple2    = "#998396"
 # Aqua      = "#7fbbb3"
-Aqua      = "#829e9b"
-Beige     = "#ab9382"
-#Orange    = "#d08b65"
-Orange    = "#d08770"
+Aqua      = "#a57878"
+# Beige     = "#ab9382"
+Beige     = "#858585"
+Orange    = "#d08b65" #hsl 21, 53, 60
+# Orange    = "#d08770"
 
 Gray              = "#3d3837"
 Gray2             = "#827272"
 Gray3             = "#655555"
 HGray             = "#6a4f3b"
 # HGray             = "#805b4f"
-Background        = "#252221"
-Background1       = "#262322"
-Background2       = "#302c2b"
-Background3       = "#3d3837"
-Background4       = "#413c3a"
+
+# Background        = "#252221"
+# Background1       = "#262322"
+# Background2       = "#302c2b"
+# Background3       = "#3d3837"
+# Background4       = "#413c3a"
+
+#darker chocoloate
+Background        = "#191110"
+Background1       = "#251918"
+Background2       = "#312121"
+Background3       = "#3d2929"
+Background4       = "#493131"
+Background5       = "#563939"
+Background6       = "#6e4949"
+
 
 Foreground        = "#c8baa4"
 Foreground1       = "#cdc0ad"

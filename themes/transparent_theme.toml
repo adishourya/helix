@@ -1,0 +1,5 @@
+# inherits = "fleet_dark"
+inherits = "chocolate"
+"ui.background" ={}
+"ui.cursorline" = {}
+# "ui.virtual.indent-guide" = {modifiers = ["dim"]}
