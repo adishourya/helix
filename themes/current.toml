@@ -9,20 +9,20 @@
 "constant.builtin.boolean" = "Aqua"
 "constant.character" = "Yellow"
 "constant.character.escape" = "Aqua"
-"constant.numeric" = "Blue"
+"constant.numeric" = "Beige"
 "string" = "Green"
 "string.regexp" = "Aqua"
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] }
 
 
 "ui.bufferline" = { fg = "Foreground2", bg = "Background1" }
-"ui.bufferline.active" = { fg = "Red", bg = "Background1" }
+"ui.bufferline.active" = { fg = "Orange", bg = "Background1" }
 
 # "ui.gutter" = {bg= "Background2"}
 # "ui.gutter.selected" = {bg = "Background2"}
 "ui.virtual.jump-label" = {fg = "Orange", bg = "Background2"}
 
-"comment" = {fg = "Brown", modifiers = ["italic"]} # .line
+"comment" = {fg = "Background3", modifiers = ["italic"]} # .line
 "variable" = "Foreground2"
 "variable.builtin" = { fg = "Beige" }
 "variable.other.member" = "Aqua"
@@ -56,7 +56,7 @@
 
 "diff.plus" = "Green"
 "diff.minus" = "Red"
-"diff.delta" = "Orange"
+"diff.delta" = "Blue"
 
 "ui.background" = { bg = "Background" }
 "ui.statusline" = { fg = "Foreground1", bg = "Background1" }
@@ -77,20 +77,20 @@
 "ui.picker.header.column" = "Red2"
 "ui.picker.header.column.active" = "Green"
 
-"ui.popup" = { fg = "Foreground", bg = "Background1" }
+"ui.popup" = { fg = "Foreground", bg = "Background2" }
 "ui.window" = { fg = "Gray" }
-"ui.help" = { fg = "Foreground", bg = "Background1" }
-"ui.menu" = { fg = "Foreground", bg = "Background1" }
-"ui.menu.selected" = { fg = "Yellow", bg = "Background2" }
+"ui.help" = { fg = "Foreground", bg = "Background2" }
+"ui.menu" = { fg = "Foreground", bg = "Background2" }
+"ui.menu.selected" = { fg = "Background", bg = "Blue" }
 "ui.menu.scroll" = { fg = "Foreground2" }
 
 "ui.text" = "Foreground"
-"ui.text.focus" = { fg = "Yellow", bg = "Background1" }
+"ui.text.focus" = { fg = "Yellow", bg = "Background3" }
 "ui.text.directory" = { fg = "Orange"}
 
 "ui.virtual" = "Foreground2"
 "ui.virtual.indent-guide" = { fg = "Background4",modifiers=["dim"] }
-"ui.virtual.inlay-hint" = { fg = "Background4"}
+"ui.virtual.inlay-hint" = { fg = "Brown", modifiers=["bold"]}
 "ui.virtual.ruler" = { bg = "Background2" }
 
 "hint" = "Foreground2"
@@ -110,16 +110,16 @@ Red          =  "#cf6363"  #hsl  0,   53,  60
 Red2         =  "#bf616a"
 Green        =  "#90be6d"
 Yellow       =  "#cfa663"
-# Yellow       =  "#f7ae62"
-Blue        =   "#dbdee9"
-Aqua         =  "#c19a6b"
-Beige        =  "#b98663"
+Blue2        =  "#5e81ac"
+Aqua         =  "#ffe0af"
+Beige        =  "#858585"
 Orange       =  "#d08b65"  #hsl  21,  53,  60
 Gray         =  "#3d3837"
+Gray2        =  "#827272"
+Gray3        =  "#655555"
 Brown        =  "#6a4f3b"
-# Brown        =  "#c19a6b"
 
-Background   =  "#251918"
+Background   =  "#2d2429"
 Background1  =  "#322220"
 Background2  =  "#4b3330"
 Background3  =  "#704c48"
@@ -130,9 +130,3 @@ Foreground   =  "#c8baa4"
 Foreground1  =  "#cdc0ad"
 Foreground2  =  "#beae94"
 Foreground3  =  "#d1c6b4"
-
-# Foreground   =  "#cfb595"
-# Foreground1  =  "#e0cda9"
-# Foreground2  =  "#edcdaf"
-# Foreground3  =  "#d1c6b4"
-

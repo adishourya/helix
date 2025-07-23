@@ -16,7 +16,7 @@ cursorline = false # default : false... nande ??
 # gutters = ["diff","line-numbers","spacer","diagnostics","spacer"]
 gutters = ["diff","line-numbers","spacer"] # hate when the gutter gets really big
 completion-trigger-len = 2 # default 2
-bufferline = "always" # so that we can get away without putting the file path in the statuline
+bufferline = "always" # always, multiple, never so that we can get away without putting the file path in the statuline
 color-modes = true
 # popup-border = "all"
 
@@ -50,8 +50,8 @@ select = "Select"
 
 [editor.statusline]
 left = ["mode","spinner"]
-center = ["version-control"]
-right = ["spinner","diagnostics","spacer","position-percentage"]
+# center = ["version-control"]
+right = ["diagnostics","spacer","version-control","spacer","position-percentage"]
 
 
 [keys.normal]
