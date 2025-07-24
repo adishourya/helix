@@ -50,8 +50,8 @@ select = "Select"
 
 [editor.statusline]
 left = ["mode","spinner"]
-# center = ["version-control"]
-right = ["diagnostics","spacer","version-control","spacer","position-percentage"]
+center = ["version-control"]
+right = ["diagnostics","spacer","position-percentage","spacer","primary-selection-length"]
 
 
 [keys.normal]
