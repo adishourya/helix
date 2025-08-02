@@ -15,14 +15,14 @@ middle-click-paste = false # this is the most horrible thing ever...
 cursorline = false # default : false... nande ??
 # gutters = ["diff","line-numbers","spacer","diagnostics","spacer"]
 gutters = ["diff","line-numbers","spacer"] # hate when the gutter gets really big
-completion-trigger-len = 2 # default 2
+completion-trigger-len = 1 # default 2
 bufferline = "always" # always, multiple, never so that we can get away without putting the file path in the statuline
 color-modes = true
 # popup-border = "all"
 
 
 [editor.soft-wrap]
-enable = true
+enable = false
 
 [editor.whitespace.render]
 nbsp = "all"
@@ -51,7 +51,7 @@ select = "Select"
 [editor.statusline]
 left = ["mode","spinner"]
 center = ["version-control"]
-right = ["diagnostics","spacer","position-percentage","spacer","primary-selection-length"]
+right = ["diagnostics","spacer","position-percentage","spacer","selections"]
 
 
 [keys.normal]

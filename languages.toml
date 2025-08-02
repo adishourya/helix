@@ -80,3 +80,18 @@ diagnosticMode = "openFilesOnly"
 [language-server.ruff]
 command = "ruff"
 args = ["server", "--preview"]
+
+#============
+[[language]]
+name = "markdown"
+soft-wrap.enable = true
+
+#============
+[[language]]
+name = "typst"
+language-servers = ["tinymist"]
+soft-wrap.enable = true
+
+[language-server.tinymist]
+command = "tinymist"
+args = ["lsp"]

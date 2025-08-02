@@ -109,6 +109,7 @@
 Red          =  "#cf6363"  #hsl  0,   53,  60
 Red2         =  "#bf616a"
 Green        =  "#90be6d"
+# Yellow       =  "#ebcb8b"
 Yellow       =  "#cfa663"
 # Yellow       =  "#f7ae62"
 Blue        =   "#ababab"
