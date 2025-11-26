@@ -15,8 +15,8 @@
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] }
 
 
-"ui.bufferline" = { fg = "Foreground2", bg = "Background0" }
-"ui.bufferline.active" = { fg = "Red", bg = "Background0" }
+"ui.bufferline" = { fg = "Foreground2", bg = "Background1" }
+"ui.bufferline.active" = { fg = "Red", bg = "Background1" }
 
 # "ui.gutter" = {bg= "Background2"}
 # "ui.gutter.selected" = {bg = "Background2"}
@@ -61,9 +61,9 @@
 "ui.background" = { bg = "Background" }
 "ui.statusline" = { fg = "Foreground1", bg = "Background1" }
 "ui.statusline.inactive" = { fg = "Foreground2" }
-"ui.statusline.normal" = { bg = "Background1", fg = "Yellow" }
-"ui.statusline.insert" = { bg = "Background1", fg = "Red" }
-"ui.statusline.select" = { bg = "Background1", fg = "Orange" }
+"ui.statusline.normal" = { fg = "Background", bg = "Yellow" }
+"ui.statusline.insert" = { fg = "Background", bg = "Red" }
+"ui.statusline.select" = { fg = "Background", bg = "Orange" }
 
 "ui.cursor" = { modifiers = ["reversed"] }
 "ui.cursor.match" = { fg = "Orange", bg = "Background3" }
@@ -121,8 +121,11 @@ Brown        =  "#6a4f3b"
 # Brown        =  "#c19a6b"
 
 # backgorund lighter
-Background0  =  "#191110"
-Background   =  "#251918"
+# 
+
+#301F2D
+Background   =  "#161118"
+# Background   =  "#251918"
 Background1  =  "#322220"
 Background2  =  "#4b3330"
 Background3  =  "#704c48"

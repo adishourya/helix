@@ -1,5 +1,6 @@
 # theme="fleet_dark"
 theme="chocolate"
+# theme="blackCurrent"
 # theme="transparent_theme"
 # theme="rose_pine"
 # theme="catppuccin_mocha"
@@ -15,13 +16,13 @@ middle-click-paste = false # this is the most horrible thing ever...
 cursorline = false # default : false... nande ??
 # gutters = ["diff","line-numbers","spacer","diagnostics","spacer"]
 gutters = ["diff","line-numbers","spacer"] # hate when the gutter gets really big
-completion-trigger-len = 1 # default 2
-bufferline = "always" # always, multiple, never so that we can get away without putting the file path in the statuline
+completion-trigger-len = 2 # default 2
+bufferline = "multiple" # always, multiple, never | use always so that we can get away without putting the file path in the statuline
 color-modes = true
 # popup-border = "all"
 
-
 [editor.soft-wrap]
+# do this in languages.toml file if needed
 enable = false
 
 [editor.whitespace.render]
@@ -49,8 +50,8 @@ normal = "Normal"
 select = "Select" 
 
 [editor.statusline]
-left = ["mode","spinner"]
-center = ["version-control"]
+left = ["mode","spinner","version-control"]
+center = ["file-base-name"]
 right = ["diagnostics","spacer","position-percentage","spacer","selections"]
 
 
@@ -85,8 +86,9 @@ esc = ["collapse_selection", "keep_primary_selection"]
   ':open %sh{cat /tmp/unique-file}',
   ':redraw',
 ]
-w = {w = ":w", q = ":wq"}
-q = {b =":buffer-close!", q = ":q!"}
+x = ":buffer-close"
+w = ":w"
+q = {b =":buffer-close!", a = ":qa!", w=":wq"}
 v = ":vsplit"
 h = ":hsplit"
 c = {o =":config-open", r = ":config-reload"}
@@ -94,7 +96,7 @@ g = [":vsplit-new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
 
 
 [keys.select]
-"q" = [":reflow","collapse_selection"]
+"q" = [":reflow","collapse_selection","goto_first_nonwhitespace"]
 "{" = ["extend_to_line_bounds", "goto_prev_paragraph"]
 "}" = ["extend_to_line_bounds", "goto_next_paragraph"]
 

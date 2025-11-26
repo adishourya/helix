@@ -95,3 +95,10 @@ soft-wrap.enable = true
 [language-server.tinymist]
 command = "tinymist"
 args = ["lsp"]
+# sources = {bib=["src/refs.bib"]}
+
+#=========
+[[language]]
+name = "html"
+soft-wrap.enable = true
+auto-format=false
