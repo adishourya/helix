@@ -1,5 +1,5 @@
-# theme="fleet_dark"
-theme="chocolate"
+theme="fleet_dark"
+# theme="chocolate"
 # theme="blackCurrent"
 # theme="transparent_theme"
 # theme="rose_pine"
@@ -88,7 +88,7 @@ esc = ["collapse_selection", "keep_primary_selection"]
 ]
 x = ":buffer-close"
 w = ":w"
-q = {b =":buffer-close!", a = ":qa!", w=":wq"}
+q = {b =":buffer-close!", q = ":qa!", w=":wq"}
 v = ":vsplit"
 h = ":hsplit"
 c = {o =":config-open", r = ":config-reload"}
