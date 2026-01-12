@@ -183,19 +183,22 @@ impl EditorView {
                 primary_cursor,
             });
         }
-        let width = view.inner_width(doc);
         let config = doc.config.load();
-        let enable_cursor_line = view
-            .diagnostics_handler
-            .show_cursorline_diagnostics(doc, view.id);
-        let inline_diagnostic_config = config.inline_diagnostics.prepare(width, enable_cursor_line);
-        decorations.add_decoration(InlineDiagnostics::new(
-            doc,
-            theme,
-            primary_cursor,
-            inline_diagnostic_config,
-            config.end_of_line_diagnostics,
-        ));
+        if config.enable_diagnostics {
+            let width = view.inner_width(doc);
+            let enable_cursor_line = view
+                .diagnostics_handler
+                .show_cursorline_diagnostics(doc, view.id);
+            let inline_diagnostic_config =
+                config.inline_diagnostics.prepare(width, enable_cursor_line);
+            decorations.add_decoration(InlineDiagnostics::new(
+                doc,
+                theme,
+                primary_cursor,
+                inline_diagnostic_config,
+                config.end_of_line_diagnostics,
+            ));
+        }
         render_document(
             surface,
             inner,
@@ -220,7 +223,9 @@ impl EditorView {
             }
         }
 
-        if config.inline_diagnostics.disabled()
+        // if config.inline_diagnostics.disabled()
+        if config.enable_diagnostics
+            && config.inline_diagnostics.disabled()
             && config.end_of_line_diagnostics == DiagnosticFilter::Disable
         {
             Self::render_diagnostics(doc, view, inner, surface, theme);
@@ -1548,7 +1553,7 @@ impl Component for EditorView {
         });
 
         // Editor area decreases by 1, to give 1 line of vertical space for bufferline
-        
+
         if use_bufferline {
             editor_area = editor_area.clip_top(1);
         }
@@ -1618,11 +1623,11 @@ impl Component for EditorView {
             } else {
                 0
             };
-                        
+
             surface.set_string(
                 area.x + area.width.saturating_sub(key_width + macro_width),
                 // area.y + area.height.saturating_sub(1),
-                (area.y + area.height.saturating_sub(1)).saturating_sub(y_offset),                
+                (area.y + area.height.saturating_sub(1)).saturating_sub(y_offset),
                 disp.get(disp.len().saturating_sub(key_width as usize)..)
                     .unwrap_or(&disp),
                 style,
@@ -1635,7 +1640,7 @@ impl Component for EditorView {
                 surface.set_string(
                     area.x + area.width.saturating_sub(3),
                     // area.y + area.height.saturating_sub(1),
-                    (area.y + area.height.saturating_sub(1)).saturating_sub(y_offset),                    
+                    (area.y + area.height.saturating_sub(1)).saturating_sub(y_offset),
                     &disp,
                     style,
                 );
