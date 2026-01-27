@@ -91,11 +91,12 @@
 | git-ignore | ✓ |  |  |  |  |  |
 | git-notes | ✓ |  |  |  |  |  |
 | git-rebase | ✓ |  |  |  |  |  |
+| github-action | ✓ | ✓ | ✓ |  | ✓ | `actions-languageserver`, `yaml-language-server` |
 | gitlab-ci | ✓ | ✓ | ✓ | ✓ | ✓ | `yaml-language-server`, `gitlab-ci-ls` |
 | gjs | ✓ | ✓ | ✓ | ✓ |  | `typescript-language-server`, `vscode-eslint-language-server`, `ember-language-server` |
 | gleam | ✓ | ✓ |  |  | ✓ | `gleam` |
 | glimmer | ✓ |  |  |  |  | `ember-language-server` |
-| glsl | ✓ | ✓ | ✓ |  |  | `glsl_analyzer` |
+| glsl | ✓ | ✓ | ✓ |  |  | `glsl_analyzer`, `glsld` |
 | gn | ✓ |  |  |  |  |  |
 | go | ✓ | ✓ | ✓ | ✓ | ✓ | `gopls`, `golangci-lint-langserver` |
 | go-format-string | ✓ |  |  |  | ✓ |  |
@@ -151,6 +152,7 @@
 | kcl | ✓ |  |  |  |  | `kcl-language-server` |
 | kconfig | ✓ |  | ✓ |  |  |  |
 | kdl | ✓ | ✓ | ✓ | ✓ |  |  |
+| klog | ✓ |  |  |  |  |  |
 | koka | ✓ |  | ✓ |  |  | `koka` |
 | kotlin | ✓ | ✓ | ✓ | ✓ |  | `kotlin-language-server` |
 | koto | ✓ | ✓ | ✓ |  | ✓ | `koto-ls` |
@@ -159,12 +161,14 @@
 | ldif | ✓ |  |  |  |  |  |
 | lean | ✓ |  |  |  |  | `lake` |
 | ledger | ✓ |  |  |  |  |  |
+| less | ✓ |  | ✓ |  | ✓ | `vscode-css-language-server` |
 | llvm | ✓ | ✓ | ✓ |  |  |  |
 | llvm-mir | ✓ | ✓ | ✓ |  |  |  |
 | llvm-mir-yaml | ✓ |  | ✓ |  |  |  |
 | log | ✓ |  |  |  |  |  |
 | lpf | ✓ |  |  |  |  |  |
 | lua | ✓ | ✓ | ✓ |  | ✓ | `lua-language-server` |
+| lua-format-string | ✓ |  |  |  |  |  |
 | luap | ✓ |  |  |  |  |  |
 | luau | ✓ | ✓ | ✓ |  |  | `luau-lsp` |
 | mail | ✓ | ✓ |  |  |  |  |
@@ -188,7 +192,7 @@
 | nickel | ✓ |  | ✓ |  |  | `nls` |
 | nim | ✓ | ✓ | ✓ |  |  | `nimlangserver` |
 | nix | ✓ | ✓ | ✓ |  | ✓ | `nil`, `nixd` |
-| nu | ✓ | ✓ | ✓ |  |  | `nu` |
+| nu | ✓ | ✓ | ✓ |  |  | `nu`, `nu-lint` |
 | nunjucks | ✓ |  |  |  |  |  |
 | ocaml | ✓ |  | ✓ |  |  | `ocamllsp` |
 | ocaml-interface | ✓ |  |  |  |  | `ocamllsp` |
@@ -220,6 +224,7 @@
 | purescript | ✓ | ✓ |  |  |  | `purescript-language-server` |
 | python | ✓ | ✓ | ✓ | ✓ | ✓ | `ty`, `ruff`, `jedi-language-server`, `pylsp` |
 | qml | ✓ | ✓ | ✓ |  |  | `qmlls` |
+| qmv |  |  |  |  |  |  |
 | quarto | ✓ |  | ✓ |  |  |  |
 | quint | ✓ |  |  |  |  | `quint-language-server` |
 | r | ✓ |  |  |  |  | `R` |
@@ -227,14 +232,14 @@
 | regex | ✓ |  |  |  | ✓ |  |
 | rego | ✓ |  |  |  |  | `regols` |
 | rescript | ✓ | ✓ |  |  |  | `rescript-language-server` |
-| ripple | ✓ |  |  |  |  | `ripple-language-server` |
+| ripple | ✓ |  |  | ✓ | ✓ | `ripple-language-server` |
 | rmarkdown | ✓ |  | ✓ |  |  | `R` |
 | robot | ✓ |  |  |  |  | `robotframework_ls` |
 | robots.txt | ✓ | ✓ |  | ✓ |  |  |
 | ron | ✓ |  | ✓ | ✓ | ✓ | `ron-lsp` |
 | rpmspec | ✓ |  |  |  |  |  |
 | rshtml | ✓ | ✓ |  |  |  | `rshtml-analyzer`, `vscode-html-language-server`, `superhtml` |
-| rst | ✓ |  |  |  |  |  |
+| rst | ✓ |  |  | ✓ |  |  |
 | ruby | ✓ | ✓ | ✓ | ✓ | ✓ | `ruby-lsp`, `solargraph` |
 | rust | ✓ | ✓ | ✓ | ✓ | ✓ | `rust-analyzer` |
 | rust-format-args | ✓ |  |  |  |  |  |
@@ -242,13 +247,13 @@
 | sage | ✓ | ✓ |  |  |  |  |
 | scala | ✓ | ✓ | ✓ |  |  | `metals` |
 | scfg | ✓ |  |  |  |  |  |
-| scheme | ✓ | ✓ | ✓ |  | ✓ |  |
+| scheme | ✓ | ✓ | ✓ | ✓ | ✓ |  |
 | scss | ✓ |  |  |  | ✓ | `vscode-css-language-server` |
 | shellcheckrc | ✓ | ✓ |  |  |  |  |
 | slang | ✓ | ✓ | ✓ |  |  | `slangd` |
 | slint | ✓ | ✓ | ✓ |  |  | `slint-lsp` |
 | slisp | ✓ |  |  | ✓ |  |  |
-| smali | ✓ |  | ✓ |  |  |  |
+| smali | ✓ |  | ✓ |  |  | `smalisp` |
 | smithy | ✓ |  |  |  |  | `cs` |
 | sml | ✓ |  |  |  |  |  |
 | snakemake | ✓ |  | ✓ |  |  | `pylsp` |
@@ -266,7 +271,7 @@
 | sway | ✓ | ✓ | ✓ |  |  | `forc` |
 | swift | ✓ | ✓ | ✓ |  | ✓ | `sourcekit-lsp` |
 | systemd | ✓ |  |  |  |  | `systemd-lsp` |
-| systemverilog | ✓ |  |  |  |  | `verible-verilog-ls` |
+| systemverilog | ✓ |  |  |  |  | `svlangserver`, `verible-verilog-ls` |
 | t32 | ✓ |  |  |  |  |  |
 | tablegen | ✓ | ✓ | ✓ |  |  |  |
 | tact | ✓ | ✓ | ✓ |  |  |  |
@@ -293,7 +298,7 @@
 | v | ✓ | ✓ | ✓ |  |  | `v-analyzer` |
 | vala | ✓ | ✓ |  |  |  | `vala-language-server` |
 | vento | ✓ |  |  |  |  |  |
-| verilog | ✓ | ✓ |  |  |  | `svlangserver` |
+| verilog | ✓ | ✓ |  |  |  | `verible-verilog-ls` |
 | vhdl | ✓ |  |  |  |  | `vhdl_ls` |
 | vhs | ✓ |  |  |  |  |  |
 | vim | ✓ |  |  |  |  |  |
