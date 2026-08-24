@@ -1169,6 +1169,20 @@ impl EditorView {
     }
 }
 
+/// Whether the focused doc's workspace is in restricted mode and running `trust` would
+/// change something visible at the workspace level.
+fn workspace_trust_indicator_visible(editor: &Editor) -> bool {
+    if editor.workspace_trust.implicit_level()
+        == helix_loader::workspace_trust::ImplicitTrustLevel::Insecure
+    {
+        return false;
+    }
+    let (_, doc) = helix_view::current_ref!(editor);
+    editor
+        .workspace_trust
+        .restricted_for_doc(doc.workspace_root(), doc.servers_to_load())
+}
+
 impl EditorView {
     /// must be called whenever the editor processed input that
     /// is not a `KeyEvent`. In these cases any pending keys/on next
@@ -1594,6 +1608,7 @@ impl Component for EditorView {
                         force: false,
                         write_scratch: false,
                         auto_format: false,
+                        code_actions: false,
                     };
                     if let Err(e) = commands::typed::write_all_impl(context, options) {
                         context.editor.set_error(format!("{}", e));
@@ -1694,7 +1709,7 @@ impl Component for EditorView {
                 0
             };
 
-            // taken from https://github.com/helix-editor/helix/pull/12204/files by nik-rev
+
             let y_offset = if config.statusline.merge_with_commandline {
                 // render macros and key sequences 1 line above
                 1
@@ -1702,14 +1717,32 @@ impl Component for EditorView {
                 0
             };
 
+            let restricted = workspace_trust_indicator_visible(cx.editor);
+            let trust_width = if restricted { 3 } else { 0 };
+
             surface.set_string(
-                area.x + area.width.saturating_sub(key_width + macro_width),
-                // area.y + area.height.saturating_sub(1),
+                area.x
+                    + area
+                        .width
+                        .saturating_sub(key_width + macro_width + trust_width),
                 (area.y + area.height.saturating_sub(1)).saturating_sub(y_offset),
+
                 disp.get(disp.len().saturating_sub(key_width as usize)..)
                     .unwrap_or(&disp),
                 style,
             );
+            if restricted {
+                let style = style
+                    .fg(helix_view::graphics::Color::Yellow)
+                    .add_modifier(Modifier::BOLD);
+                surface.set_string(
+                    area.x
+                        .saturating_add(area.width.saturating_sub(3 + macro_width)),
+                    area.y + area.height.saturating_sub(1),
+                    "[⚠]",
+                    style,
+                );
+            }
             if let Some((reg, _)) = cx.editor.macro_recording {
                 let disp = format!("[{}]", reg);
                 let style = style
