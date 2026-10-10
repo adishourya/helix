@@ -15,8 +15,8 @@
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] }
 
 
-"ui.bufferline" = { fg = "Foreground2", bg = "Background0" }
-"ui.bufferline.active" = { fg = "Red", bg = "Background0" }
+"ui.bufferline" = { fg = "Foreground2", bg = "Background" }
+"ui.bufferline.active" = { fg = "Red", bg = "Background" }
 
 # "ui.gutter" = {bg= "Background2"}
 # "ui.gutter.selected" = {bg = "Background2"}
@@ -98,10 +98,10 @@
 "warning" = "Orange"
 "error" = "Red"
 
-"diagnostic.hint" = { underline = { color = "Foreground2", style = "line" } }
-"diagnostic.info" = { underline = { color = "Red2", style = "line" } }
-"diagnostic.warning" = { underline = { color = "Yellow", style = "line" } }
-"diagnostic.error" = { underline = { color = "Red", style = "line" }}
+"diagnostic.hint" = { underline = { color = "Foreground2", style = "curl" } }
+"diagnostic.info" = { underline = { color = "Red2", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "Yellow", style = "curl" } }
+"diagnostic.error" = { underline = { color = "Red", style = "curl" }}
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
 "diagnostic.deprecated" = { modifiers = ["crossed_out"] }
 

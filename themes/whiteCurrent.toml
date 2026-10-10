@@ -1,0 +1,207 @@
+# Fleet Max Bill Light
+
+# A warm, restrained light theme inspired by the
+
+# eggshell dial and minimalist typography of Junghans Max Bill.
+
+"attribute" = "Lime"
+
+"type" = "Blue"
+"type.return" = "Blue Light"
+"type.parameter" = "Blue Light"
+"constructor" = "Yellow"
+
+"constant" = "Violet"
+"constant.builtin.boolean" = "Cyan"
+"constant.character" = "Yellow"
+"constant.character.escape" = "Cyan"
+"constant.numeric" = "Yellow"
+"string" = "Green"
+"string.regexp" = "Cyan"
+"string.special" = { fg = "Blue", modifiers = ["underlined"] }
+
+"comment" = "Gray 70"
+"variable" = "Gray 120"
+"variable.builtin" = { fg = "Coral" }
+"variable.other.member" = "Violet"
+"label" = "Yellow"
+
+"keyword" = "Blue"
+"function" = "Yellow"
+"function.declaration" = "Gray 120"
+"function.macro" = "Lime"
+"function.builtin" = "Lime"
+"function.special" = "Lime"
+
+"tag" = "Blue"
+"special" = "Lime"
+"namespace" = "Blue"
+
+# Markup
+
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+"markup.heading" = { fg = "Blue", modifiers = ["bold"] }
+"markup.list" = "Coral"
+"markup.list.numbered" = "Blue"
+"markup.list.unnumbered" = "Blue"
+"markup.link.url" = { fg = "Pink", modifiers = ["italic", "underlined"] }
+"markup.link.text" = "Blue"
+"markup.link.label" = "Violet"
+"markup.quote" = "Gray 70"
+"markup.raw" = "Green"
+"markup.raw.inline" = "Cyan"
+"markup.raw.block" = "Green"
+
+# Diff
+
+"diff.plus" = "Green"
+"diff.minus" = "Red"
+"diff.delta" = "Blue"
+
+# UI
+
+"ui.background" = { bg = "Eggshell" }
+"ui.statusline" = { fg = "Gray 120", bg = "Surface" }
+"ui.statusline.normal" = { fg = "Gray 120", bg = "Surface Active" }
+"ui.statusline.inactive" = { fg = "Gray 70", bg = "Surface" }
+"ui.statusline.insert" = { fg = "Eggshell", bg = "Blue" }
+"ui.statusline.select" = { fg = "Eggshell", bg = "Violet" }
+
+"ui.virtual.indent-guide" = "Gray 30"
+
+"ui.bufferline" = { fg = "Gray 70", bg = "Eggshell" }
+"ui.bufferline.active" = { bg = "Eggshell", fg = "Blue" }
+
+"ui.virtual.jump-label" = { fg = "Eggshell", bg = "Blue" }
+"ui.picker.header.column" = "Blue Light"
+"ui.picker.header.column.active" = "Blue"
+
+"ui.cursor" = { modifiers = ["reversed"] }
+"ui.cursor.match" = { bg = "Selection Soft" }
+"ui.selection" = { bg = "Selection" }
+"ui.selection.primary" = { bg = "Selection Primary" }
+
+"ui.cursorline" = { bg = "Cursorline" }
+"ui.linenr" = "Gray 60"
+"ui.linenr.selected" = "Gray 120"
+
+"ui.popup" = { fg = "Gray 120", bg = "Surface" }
+"ui.window" = { fg = "Gray 40" }
+"ui.help" = { fg = "Gray 120", bg = "Surface" }
+"ui.menu" = { fg = "Gray 120", bg = "Surface" }
+"ui.menu.selected" = { fg = "Eggshell", bg = "Blue" }
+"ui.menu.scroll" = { fg = "Gray 50" }
+
+"ui.text" = "Gray 120"
+"ui.text.focus" = { fg = "Eggshell", bg = "Blue" }
+
+"ui.virtual" = "Gray 60"
+"ui.virtual.inlay-hint" = { fg = "Gray 70" }
+"ui.virtual.ruler" = { bg = "Surface" }
+
+# Diagnostics
+
+"hint" = "Gray 70"
+"info" = "Violet"
+"warning" = "Yellow"
+"error" = "Red"
+
+"diagnostic.hint" = { underline = { color = "Gray 70", style = "curl" } }
+"diagnostic.info" = { underline = { color = "Violet", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "Yellow", style = "curl" } }
+"diagnostic.error" = { underline = { color = "Red", style = "curl" } }
+"diagnostic.unnecessary" = { modifiers = ["dim"] }
+"diagnostic.deprecated" = { modifiers = ["crossed_out"] }
+
+[palette]
+
+# Warm neutral foundation
+
+"Eggshell" = "#F3F0E7"
+"Surface" = "#EAE6DC"
+"Surface Active" = "#E1DDD2"
+"Cursorline" = "#EBE7DD"
+"Selection" = "#DFE2DD"
+"Selection Primary" = "#D5DFE4"
+
+# Warm greys
+
+"White" = "#FFFFFF"
+"Gray 120" = "#343632"
+"Gray 110" = "#454740"
+"Gray 100" = "#585950"
+"Gray 90" = "#68695F"
+"Gray 80" = "#77776D"
+"Gray 70" = "#85857A"
+"Gray 60" = "#99988C"
+"Gray 50" = "#B0AEA1"
+"Gray 40" = "#C2BFB2"
+"Gray 30" = "#D3D0C4"
+"Gray 20" = "#E1DDD2"
+"Gray 15" = "#EAE6DC"
+"Gray 11" = "#EFEBE1"
+"Gray 10" = "#F3F0E7"
+"Black" = "#242620"
+
+# Blues: calm, slightly desaturated
+
+"Blue 110" = "#7298AD"
+"Blue 100" = "#5D8AA2"
+"Blue 90" = "#477B9B"
+"Blue 80" = "#3E718F"
+"Blue 70" = "#386984"
+"Blue 60" = "#326078"
+"Blue 50" = "#2D566C"
+"Blue 40" = "#C7D8DF"
+"Blue 30" = "#D5E0E4"
+"Blue 20" = "#E1E9E9"
+"Blue 10" = "#EDF0EB"
+
+# Reds
+
+"Red 80" = "#C87976"
+"Red 70" = "#BD6966"
+"Red 60" = "#B45E5C"
+"Red 50" = "#A85351"
+"Red 40" = "#984A49"
+"Red 30" = "#E8D2CD"
+"Red 20" = "#F0E0DA"
+"Red 10" = "#F6EBE5"
+
+# Greens
+
+"Green 50" = "#56816C"
+"Green 40" = "#4F7865"
+"Green 30" = "#D5E2D5"
+"Green 20" = "#E2E9DD"
+"Green 10" = "#EDF0E6"
+
+# Yellows
+
+"Yellow 60" = "#B58D4D"
+"Yellow 50" = "#AA8445"
+"Yellow 40" = "#A17A39"
+"Yellow 30" = "#E9DFC9"
+"Yellow 20" = "#F0E8D7"
+"Yellow 10" = "#F6F0E3"
+
+# Purple
+
+"Purple 20" = "#806A9D"
+"Purple 10" = "#907BAA"
+
+# Syntax accents
+
+"Blue" = "#477B9B"
+"Blue Light" = "#6593A5"
+"Coral" = "#B96D70"
+"Cyan" = "#438D87"
+"Cyan Dark" = "#648D88"
+"Lime" = "#718B4D"
+"Orange" = "#B36F4F"
+"Pink" = "#A65F83"
+"Violet" = "#806A9D"
+"Yellow" = "#A17A39"
+"Green" = "#56816C"

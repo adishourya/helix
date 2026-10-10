@@ -4,17 +4,17 @@ theme="blackCurrent" # fork of fleet dark
 # theme="jetbrains_dark"
 
 [editor]
-scrolloff = 0 # leave 1 to see decorator attached and stuff
-mouse = false # but we can still scroll yay!
+scrolloff = 1 # leave 1 to see decorator attached and stuff
+mouse = true # but we can still scroll yay!
 middle-click-paste = false # this is the most horrible thing ever...
-scroll-lines=2 # default 3
+scroll-lines=1 # default 3
 line-number = "relative" # or keep absolute..
-cursorline = true # default : false... nande ??
+cursorline = true # default : false
 cursorcolumn=false # default false
 continue-comments=true # default true
 # gutters = ["diff","line-numbers","spacer","diagnostics","spacer"]
-# gutters = ["diff","line-numbers","spacer"] # hate when the gutter gets really big
-gutters = ["diff","diagnostics","line-numbers","spacer"] # hate when the gutter gets really big
+gutters = ["diff","line-numbers","spacer"] # hate when the gutter gets really big
+# gutters = ["diff","diagnostics","line-numbers","spacer"] # hate when the gutter gets really big
 auto-completion=true
 path-completion=true
 auto-format=true
@@ -24,11 +24,11 @@ completion-replace=true # default false
 auto-info=true
 completion-trigger-len = 1 # default 2
 completion-timeout=5 # default 250, use 5 for instant
-bufferline = "multiple" # always, multiple, never | use always so that we can get away without putting the file path in the statuline
+bufferline = "always" # always, multiple, never
 # workspace-lsp-roots = []
-insert-final-newline=true# default true
+insert-final-newline=true # default true
 atomic-save=true # keep this true
-trim-final-newlines=true# default false
+trim-final-newlines=false # default false
 trim-trailing-whitespace=true # default false
 color-modes = true
 enable-diagnostics = false #default true
@@ -36,9 +36,6 @@ enable-diagnostics = false #default true
 end-of-line-diagnostics = "disable"
 # inline-diagnostics.cursor-line = "disable"
 
-# [editor.inline-diagnostics]
-# cursor-line="disable"
-# other-lines="disable"
 
 [editor.soft-wrap]
 # do this in languages.toml file if needed
@@ -53,6 +50,7 @@ space = "none" # there is no settings for trailing whitespaces :(
 render = true
 character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽"
 # character = "┆" # Some characters that work well: "▏", "┆", "┊", "⸽"
+# character = "⸽" # Some characters that work well: "▏", "┆", "┊", "⸽"
 skip-levels = 0
 
 [editor.lsp]
@@ -91,11 +89,11 @@ esc = ["collapse_selection", "keep_primary_selection"]
 [keys.normal."["]
 "[" = ":buffer-previous"
 
-
+# my shortcuts
 [keys.normal."-"]
-"e" = "file_explorer_in_current_buffer_directory"
+"s" = ["select_all","select_regex"]
 "f" = "file_picker_in_current_buffer_directory"
-"t" = {l = ":theme rose_pine_dawn", c=":theme chocolate", b =":theme blackCurrent",j = ":theme jetbrains_dark"}
+"t" = {l = ":theme everforest_light", c=":theme chocolate", b =":theme blackCurrent",j = ":theme jetbrains_dark", w = ":theme adwaita-light"}
 "F" = ":format"
 "-" = [
   ':sh rm -f /tmp/unique-file',
@@ -112,10 +110,10 @@ h = ":hsplit"
 c = {o =":config-open", r = ":config-reload"}
 g = [":vsplit-new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
 d = [":toggle-option enable-diagnostics"]
-# d = {d=":toggle inline-diagnostics.cursor-line disable", w = ":toggle inline-diagnostics.cursor-line warning", e = ":toggle inline-diagnostics.cursor-line error"}
 
 [keys.insert]
 "C-tab" = ["completion"]
+"A-space" = ["completion"]
 
 [keys.select]
 "q" = [":reflow","collapse_selection","goto_first_nonwhitespace"]

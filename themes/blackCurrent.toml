@@ -23,7 +23,7 @@
 "string.regexp" = "Cyan"
 "string.special" = { fg = "Yellow", modifiers = ["underlined"] } #.path / .url / .symbol
 
-"comment" = "Gray 90" # .line
+"comment" = {fg= "Gray 90", modifiers = ["italic"]} # .line
 # "comment.block" = {} # .documentation
 "variable" = "Gray 120" # .builtin
 "variable.builtin" = { fg = "Coral" }
@@ -68,7 +68,7 @@
 "ui.background" = { bg = "Gray 10" } # .separator
 "ui.statusline" = { fg = "Gray 120", bg = "Gray 11" } # .inactive / .normal / .insert / .select
 "ui.statusline.normal" = { fg = "Gray 120", bg = "Gray 20" }
-"ui.statusline.inactive" = { fg = "Gray 90"}
+"ui.statusline.inactive" = { fg = "Yellow"}
 "ui.statusline.insert" = { fg = "Gray 20", bg = "Blue 90" }
 "ui.statusline.select" = { fg = "Gray 20", bg = "Yellow 60" }
 
@@ -116,10 +116,10 @@
 # "warning" = "Yellow 20"
 # "error" = "Red 20"
 
-"diagnostic.hint" = { underline = { color = "Gray 60", style = "line" } }
-"diagnostic.info" = { underline = { color = "Gray 60", style = "line" } }
-"diagnostic.warning" = { underline = { color = "Gray 60", style = "line" } }
-"diagnostic.error" = { underline = { color = "Gray 60", style = "line" }}
+"diagnostic.hint" = { underline = { color = "Gray 80", style = "curl" } }
+"diagnostic.info" = { underline = { color = "Gray 80", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "#FACb66", style = "curl" } }
+"diagnostic.error" = { underline = { color = "#FF5269", style = "curl" }}
 "diagnostic.unnecessary" = { modifiers = ["dim"] }
 "diagnostic.deprecated" = { modifiers = ["crossed_out"] }
 
@@ -151,6 +151,7 @@
 "Blue 30" = "#163764"
 "Blue 20" = "#132c4f"
 "Blue 10" = "#0b1b32"
+
 "Red 80" = "#ec7388"
 "Red 70" = "#ea4b67"
 "Red 60" = "#d93953"
