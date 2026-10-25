@@ -7,6 +7,7 @@ use arc_swap::ArcSwap;
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
+    time::SystemTime,
 };
 
 #[cfg(feature = "git")]
@@ -59,6 +60,15 @@ impl DiffProviderRegistry {
                 }
             }
         })
+    }
+
+    /// Returns a watcher that cheaply detects when the VCS state (HEAD, the checked out branch
+    /// or the index) of the repository containing `file` changes, which invalidates the diff
+    /// base and head name.
+    pub fn state_watcher(&self, file: &Path) -> Option<VcsStateWatcher> {
+        self.providers
+            .iter()
+            .find_map(|provider| provider.state_watcher(file).ok())
     }
 
     /// Fire-and-forget changed file iteration. Runs everything in a background task. Keeps
@@ -127,6 +137,17 @@ impl DiffProvider {
         }
     }
 
+    fn state_watcher(&self, file: &Path) -> Result<VcsStateWatcher> {
+        match self {
+            #[cfg(feature = "git")]
+            Self::Git => {
+                let (git_dir, common_dir) = git::get_git_dirs(file)?;
+                Ok(VcsStateWatcher::new(git_dir, common_dir))
+            }
+            Self::None => bail!("No diff support compiled in"),
+        }
+    }
+
     fn for_each_changed_file(
         &self,
         cwd: &Path,
@@ -138,5 +159,55 @@ impl DiffProvider {
             Self::Git => git::for_each_changed_file(cwd, trust_full, f),
             Self::None => bail!("No diff support compiled in"),
         }
+    }
+}
+
+/// Detects changes to a git repository's HEAD, checked out branch and index by comparing the
+/// modification times of the files git rewrites when they change. Checking costs a few `stat`
+/// calls and reading `HEAD`, so it is cheap enough to poll.
+#[derive(Debug, Clone)]
+pub struct VcsStateWatcher {
+    git_dir: PathBuf,
+    common_dir: PathBuf,
+    stamp: [Option<SystemTime>; 4],
+}
+
+impl VcsStateWatcher {
+    #[cfg_attr(not(feature = "git"), allow(dead_code))]
+    fn new(git_dir: PathBuf, common_dir: PathBuf) -> Self {
+        let mut watcher = Self {
+            git_dir,
+            common_dir,
+            stamp: [None; 4],
+        };
+        watcher.stamp = watcher.current_stamp();
+        watcher
+    }
+
+    fn current_stamp(&self) -> [Option<SystemTime>; 4] {
+        let mtime = |path: &Path| path.metadata().and_then(|meta| meta.modified()).ok();
+        let head = self.git_dir.join("HEAD");
+        // A commit updates the file of the checked out branch rather than HEAD itself.
+        let branch = std::fs::read_to_string(&head).ok().and_then(|head| {
+            let branch = head.strip_prefix("ref:")?.trim();
+            mtime(&self.common_dir.join(branch))
+        });
+        [
+            mtime(&head),
+            branch,
+            mtime(&self.common_dir.join("packed-refs")),
+            mtime(&self.git_dir.join("index")),
+        ]
+    }
+
+    /// Returns `true` if the repository state changed since the watcher was created or this
+    /// function last returned `true`.
+    pub fn changed(&mut self) -> bool {
+        let stamp = self.current_stamp();
+        if stamp == self.stamp {
+            return false;
+        }
+        self.stamp = stamp;
+        true
     }
 }

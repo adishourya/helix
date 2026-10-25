@@ -2,7 +2,7 @@ use anyhow::{bail, Context, Result};
 use arc_swap::ArcSwap;
 use gix::filter::plumbing::driver::apply::Delay;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use gix::bstr::ByteSlice;
@@ -142,6 +142,25 @@ fn open_repo(path: &Path, trust_full: bool) -> Result<ThreadSafeRepository> {
         .with(trust);
 
     Ok(ThreadSafeRepository::open_opts(git_dir, options)?)
+}
+
+/// Returns the repository's git directory and common directory (which differ for linked
+/// worktrees). Only discovers the repository; nothing is read from its config.
+pub fn get_git_dirs(file: &Path) -> Result<(PathBuf, PathBuf)> {
+    let file = gix::path::realpath(file).context("resolve symlinks")?;
+    let repo_dir = get_repo_dir(&file)?;
+    let discover_options = gix::discover::upwards::Options {
+        dot_git_only: true,
+        ..Default::default()
+    };
+    let (repo_path, _) = gix::discover::upwards_opts(repo_dir, discover_options)
+        .context("failed to discover git repo")?;
+    let (git_dir, _) = repo_path.into_repository_and_work_tree_directories();
+    let common_dir = match std::fs::read_to_string(git_dir.join("commondir")) {
+        Ok(common_dir) => git_dir.join(common_dir.trim()),
+        Err(_) => git_dir.clone(),
+    };
+    Ok((git_dir, common_dir))
 }
 
 /// Emulates the result of running `git status` from the command line.

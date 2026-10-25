@@ -15,7 +15,7 @@ use helix_core::text_annotations::{InlineAnnotation, Overlay};
 use helix_event::TaskController;
 use helix_lsp::util::lsp_pos_to_pos;
 use helix_stdx::faccess::{copy_metadata, readonly};
-use helix_vcs::{DiffHandle, DiffProviderRegistry};
+use helix_vcs::{DiffHandle, DiffProviderRegistry, VcsStateWatcher};
 use std::sync::OnceLock;
 use thiserror;
 
@@ -198,6 +198,11 @@ pub struct Document {
     // Last time we wrote to the file. This will carry the time the file was last opened if there
     // were no saves.
     last_saved_time: SystemTime,
+    // mtime of an external change the user was already warned about because the buffer had
+    // unsaved changes. Prevents repeating the warning on every auto-reload check.
+    external_change_warned: Option<SystemTime>,
+    // Detects commits/checkouts that make the diff base and head name stale.
+    vcs_state: Option<VcsStateWatcher>,
 
     last_saved_revision: usize,
     version: i32, // should be usize?
@@ -756,6 +761,8 @@ impl Document {
             history: Cell::new(History::default()),
             savepoints: Vec::new(),
             last_saved_time: SystemTime::now(),
+            external_change_warned: None,
+            vcs_state: None,
             last_saved_revision: 0,
             modified_since_accessed: false,
             language_servers: HashMap::new(),
@@ -1250,7 +1257,30 @@ impl Document {
         }
     }
 
+    /// The file's mtime as of the last time it was opened, saved or reloaded.
+    pub fn last_saved_time(&self) -> SystemTime {
+        self.last_saved_time
+    }
+
+    /// Returns the mtime of the file on disk if it was changed by an external process since the
+    /// document was last opened, saved or reloaded.
+    pub fn externally_modified_time(&self) -> Option<SystemTime> {
+        let mtime = self.path()?.metadata().ok()?.modified().ok()?;
+        (mtime > self.last_saved_time).then_some(mtime)
+    }
+
+    /// Records that the user was warned about an external change at `mtime`. Returns `false` if
+    /// they were already warned about this change.
+    pub fn mark_external_change_warned(&mut self, mtime: SystemTime) -> bool {
+        if self.external_change_warned == Some(mtime) {
+            return false;
+        }
+        self.external_change_warned = Some(mtime);
+        true
+    }
+
     pub fn pickup_last_saved_time(&mut self) {
+        self.external_change_warned = None;
         self.last_saved_time = match self.path() {
             Some(path) => match path.metadata() {
                 Ok(metadata) => match metadata.modified() {
@@ -1310,12 +1340,7 @@ impl Document {
         self.pickup_last_saved_time();
         self.detect_indent_and_line_ending();
 
-        match provider_registry.get_diff_base(&path, trust_full) {
-            Some(diff_base) => self.set_diff_base(diff_base),
-            None => self.diff_handle = None,
-        }
-
-        self.version_control_head = provider_registry.get_current_head_name(&path, trust_full);
+        self.refresh_vcs(provider_registry, trust_full);
 
         Ok(())
     }
@@ -1860,6 +1885,7 @@ impl Document {
         );
         self.last_saved_revision = rev;
         self.last_saved_time = save_time;
+        self.external_change_warned = None;
     }
 
     /// Get the document's latest saved revision.
@@ -2000,6 +2026,27 @@ impl Document {
         } else {
             self.diff_handle = None;
         }
+    }
+
+    /// Re-read the diff base and head name from the VCS, e.g. after a commit or checkout.
+    pub fn refresh_vcs(&mut self, provider_registry: &DiffProviderRegistry, trust_full: bool) {
+        let Some(path) = self.path.clone() else {
+            return;
+        };
+        match provider_registry.get_diff_base(&path, trust_full) {
+            Some(diff_base) => self.set_diff_base(diff_base),
+            None => self.diff_handle = None,
+        }
+        self.version_control_head = provider_registry.get_current_head_name(&path, trust_full);
+        self.vcs_state = provider_registry.state_watcher(&path);
+    }
+
+    /// Returns `true` if the VCS state (HEAD, branch, index) changed since the diff base was
+    /// last read, meaning [`Document::refresh_vcs`] should be called.
+    pub fn vcs_state_changed(&mut self) -> bool {
+        self.vcs_state
+            .as_mut()
+            .is_some_and(|watcher| watcher.changed())
     }
 
     pub fn version_control_head(&self) -> Option<Arc<Box<str>>> {

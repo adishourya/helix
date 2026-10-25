@@ -10,6 +10,7 @@
 - [`[editor.buffer-picker]` Section](#editorbuffer-picker-section)
 - [`[editor.auto-pairs]` Section](#editorauto-pairs-section)
 - [`[editor.auto-save]` Section](#editorauto-save-section)
+- [`[editor.auto-reload]` Section](#editorauto-reload-section)
 - [`[editor.search]` Section](#editorsearch-section)
 - [`[editor.whitespace]` Section](#editorwhitespace-section)
 - [`[editor.indent-guides]` Section](#editorindent-guides-section)
@@ -321,6 +322,15 @@ Control auto save behavior.
 | `focus-lost` | Enable automatic saving on the focus moving away from Helix. Requires [focus event support](https://github.com/helix-editor/helix/wiki/Terminal-Support) from your terminal | `false` |
 | `after-delay.enable` | Enable automatic saving after `auto-save.after-delay.timeout` milliseconds have passed since last edit. | `false` |
 | `after-delay.timeout` | Time in milliseconds since last edit before auto save timer triggers. | `3000` |
+
+### `[editor.auto-reload]` Section
+
+Reload buffers whose files were changed on disk by an external process (e.g. `git checkout`, a formatter or another tool). Buffers with unsaved changes are never reloaded; a warning is shown instead. The same checks also refresh the diff gutter and branch name when the repository's HEAD, branch or index changes (e.g. after a `git commit` or `git checkout` in another terminal). Each check costs a few `stat` calls per open file.
+
+| Key | Description | Default |
+|--|--|---------|
+| `focus-gained` | Check for external changes when the terminal regains focus. Requires [focus event support](https://github.com/helix-editor/helix/wiki/Terminal-Support) from your terminal | `true` |
+| `interval` | Time in milliseconds between periodic checks for external changes. Set to `0` to disable periodic checks. | `1000` |
 
 ### `[editor.search]` Section
 

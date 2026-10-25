@@ -156,3 +156,29 @@ fn symlink_to_git_repo() {
     assert_eq!(git::get_diff_base(&file_link, true).unwrap(), contents);
     assert_eq!(git::get_diff_base(&file, true).unwrap(), contents);
 }
+
+#[test]
+fn state_watcher_detects_commits_and_checkouts() {
+    let temp_git = empty_git_repo();
+    let file = temp_git.path().join("file.txt");
+    File::create(&file).unwrap().write_all(b"foo").unwrap();
+    create_commit(temp_git.path(), true);
+
+    let mut watcher = crate::DiffProviderRegistry::default()
+        .state_watcher(&file)
+        .expect("file is inside a git repository");
+    assert!(!watcher.changed());
+
+    File::create(&file).unwrap().write_all(b"bar").unwrap();
+    assert!(
+        !watcher.changed(),
+        "worktree changes don't affect the diff base"
+    );
+
+    create_commit(temp_git.path(), true);
+    assert!(watcher.changed());
+    assert!(!watcher.changed());
+
+    exec_git_cmd("checkout -b other", temp_git.path());
+    assert!(watcher.changed());
+}

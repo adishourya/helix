@@ -1611,66 +1611,63 @@ fn reload_all(cx: &mut compositor::Context, _args: Args, event: PromptEvent) -> 
         return Ok(());
     }
 
-    let scrolloff = cx.editor.config().scrolloff;
-    let view_id = view!(cx.editor).id;
-
-    let docs_view_ids: Vec<(DocumentId, Vec<ViewId>)> = cx
-        .editor
-        .documents_mut()
-        .map(|doc| {
-            let mut view_ids: Vec<_> = doc.selections().keys().cloned().collect();
-
-            if view_ids.is_empty() {
-                doc.ensure_view_init(view_id);
-                view_ids.push(view_id);
-            };
-
-            (doc.id(), view_ids)
-        })
-        .collect();
-
-    for (doc_id, view_ids) in docs_view_ids {
-        let doc = doc_mut!(cx.editor, &doc_id);
-
-        // Every doc is guaranteed to have at least 1 view at this point.
-        let view = view_mut!(cx.editor, view_ids[0]);
-
-        // Ensure that the view is synced with the document's history.
-        view.sync_changes(doc);
-
-        // Per-document trust: each doc's workspace may differ.
-        let trust_full = cx
-            .editor
-            .workspace_trust
-            .query(
-                doc.workspace_root(),
-                helix_loader::workspace_trust::TrustQuery::Git,
-            )
-            .is_trusted();
-        if let Err(error) = doc.reload(view, &cx.editor.diff_providers, trust_full) {
+    let doc_ids: Vec<DocumentId> = cx.editor.documents().map(|doc| doc.id()).collect();
+    for doc_id in doc_ids {
+        if let Err(error) = reload_document(cx.editor, doc_id) {
             cx.editor.set_error(format!("{}", error));
-            continue;
         }
+    }
 
-        if let Some(path) = doc.path().map(ToOwned::to_owned) {
-            cx.editor
-                .language_servers
-                .file_event_handler
-                .file_changed(path);
-        }
+    Ok(())
+}
 
-        for view_id in view_ids {
-            let view = view_mut!(cx.editor, view_id);
-            if view.doc.eq(&doc_id) {
-                // Reloading commits the diff against disk through the first view
-                // only (above). Any other view onto this document is left
-                // pointing at the pre-reload revision, so sync it now; otherwise
-                // its jumplist entries keep referencing the old (e.g. larger)
-                // text and a later commit panics when mapping them through a
-                // changeset whose pre-image no longer contains them.
-                view.sync_changes(doc);
-                view.ensure_cursor_in_view(doc, scrolloff);
-            }
+/// Reload a single [`Document`] from disk and sync every view that displays it.
+pub(crate) fn reload_document(editor: &mut Editor, doc_id: DocumentId) -> anyhow::Result<()> {
+    let scrolloff = editor.config().scrolloff;
+    let focused_view_id = view!(editor).id;
+
+    let doc = doc_mut!(editor, &doc_id);
+    let mut view_ids: Vec<ViewId> = doc.selections().keys().cloned().collect();
+    if view_ids.is_empty() {
+        doc.ensure_view_init(focused_view_id);
+        view_ids.push(focused_view_id);
+    }
+
+    // Per-document trust: each doc's workspace may differ.
+    let trust_full = editor
+        .workspace_trust
+        .query(
+            doc.workspace_root(),
+            helix_loader::workspace_trust::TrustQuery::Git,
+        )
+        .is_trusted();
+
+    // Every doc is guaranteed to have at least 1 view at this point.
+    let view = view_mut!(editor, view_ids[0]);
+
+    // Ensure that the view is synced with the document's history.
+    view.sync_changes(doc);
+    doc.reload(view, &editor.diff_providers, trust_full)?;
+
+    if let Some(path) = doc.path().map(ToOwned::to_owned) {
+        editor
+            .language_servers
+            .file_event_handler
+            .file_changed(path);
+    }
+
+    for view_id in view_ids {
+        let view = view_mut!(editor, view_id);
+        if view.doc.eq(&doc_id) {
+            // Reloading commits the diff against disk through the first view
+            // only (above). Any other view onto this document is left
+            // pointing at the pre-reload revision, so sync it now; otherwise
+            // its jumplist entries keep referencing the old (e.g. larger)
+            // text and a later commit panics when mapping them through a
+            // changeset whose pre-image no longer contains them.
+            let doc = doc_mut!(editor, &doc_id);
+            view.sync_changes(doc);
+            view.ensure_cursor_in_view(doc, scrolloff);
         }
     }
 

@@ -337,6 +337,8 @@ pub struct Config {
     /// Time delay defaults to false with 3000ms delay. Focus lost defaults to false.
     #[serde(deserialize_with = "deserialize_auto_save")]
     pub auto_save: AutoSave,
+    /// Automatically reload unmodified buffers whose files were changed by an external process.
+    pub auto_reload: AutoReload,
     /// Set a global text_width
     pub text_width: usize,
     /// Time in milliseconds since last keypress before idle timers trigger.
@@ -1025,6 +1027,25 @@ pub struct AutoSave {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case", deny_unknown_fields)]
+pub struct AutoReload {
+    /// Check open files for external changes when the terminal regains focus. Defaults to true.
+    pub focus_gained: bool,
+    /// Interval in milliseconds at which open files are checked for external changes.
+    /// Set to 0 to disable periodic checks. Defaults to 1000ms.
+    pub interval: u64,
+}
+
+impl Default for AutoReload {
+    fn default() -> Self {
+        Self {
+            focus_gained: true,
+            interval: 1000,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AutoSaveAfterDelay {
     #[serde(default)]
@@ -1199,6 +1220,7 @@ impl Default for Config {
             auto_format: true,
             default_yank_register: '"',
             auto_save: AutoSave::default(),
+            auto_reload: AutoReload::default(),
             idle_timeout: Duration::from_millis(250),
             completion_timeout: Duration::from_millis(250),
             preview_completion_insert: true,
@@ -1321,6 +1343,7 @@ pub struct Editor {
 
     pub idle_timer: Pin<Box<Sleep>>,
     redraw_timer: Pin<Box<Sleep>>,
+    auto_reload_timer: Pin<Box<Sleep>>,
     last_motion: Option<Motion>,
     pub last_completion: Option<CompleteAction>,
     pub last_cwd: Option<PathBuf>,
@@ -1359,6 +1382,7 @@ pub enum EditorEvent {
     DebuggerEvent((DebugAdapterId, dap::Payload)),
     IdleTimer,
     Redraw,
+    AutoReloadTimer,
 }
 
 #[derive(Debug, Clone)]
@@ -1459,6 +1483,11 @@ impl Editor {
             autoinfo: None,
             idle_timer: Box::pin(sleep(conf.idle_timeout)),
             redraw_timer: Box::pin(sleep(Duration::MAX)),
+            auto_reload_timer: Box::pin(sleep(match conf.auto_reload.interval {
+                // equivalent to internal Instant::far_future() (30 years)
+                0 => Duration::from_secs(86400 * 365 * 30),
+                interval => Duration::from_millis(interval),
+            })),
             last_motion: None,
             last_completion: None,
             last_cwd: None,
@@ -1513,6 +1542,7 @@ impl Editor {
         let config = self.config();
         self.auto_pairs = (&config.auto_pairs).into();
         self.reset_idle_timer();
+        self.reset_auto_reload_timer();
         self._refresh();
         helix_event::dispatch(crate::events::ConfigDidChange {
             editor: self,
@@ -1533,6 +1563,19 @@ impl Editor {
         self.idle_timer
             .as_mut()
             .reset(Instant::now() + config.idle_timeout);
+    }
+
+    /// Schedules the next check for externally modified files, or disables the check if
+    /// `auto-reload.interval` is 0.
+    pub fn reset_auto_reload_timer(&mut self) {
+        let interval = self.config().auto_reload.interval;
+        let deadline = if interval == 0 {
+            // equivalent to internal Instant::far_future() (30 years)
+            Instant::now() + Duration::from_secs(86400 * 365 * 30)
+        } else {
+            Instant::now() + Duration::from_millis(interval)
+        };
+        self.auto_reload_timer.as_mut().reset(deadline);
     }
 
     pub fn clear_status(&mut self) {
@@ -2126,12 +2169,7 @@ impl Editor {
                 .workspace_trust
                 .query(doc.workspace_root(), TrustQuery::Git)
                 .is_trusted();
-            if let Some(diff_base) = self.diff_providers.get_diff_base(&path, trust_full) {
-                doc.set_diff_base(diff_base);
-            }
-            doc.set_version_control_head(
-                self.diff_providers.get_current_head_name(&path, trust_full),
-            );
+            doc.refresh_vcs(&self.diff_providers, trust_full);
 
             let id = self.new_document(doc);
             self.launch_language_servers(id);
@@ -2507,6 +2545,10 @@ impl Editor {
                 }
                 _ = &mut self.idle_timer  => {
                     return EditorEvent::IdleTimer
+                }
+                _ = &mut self.auto_reload_timer => {
+                    self.reset_auto_reload_timer();
+                    return EditorEvent::AutoReloadTimer
                 }
             }
         }

@@ -350,6 +350,7 @@ impl Application {
                     self.render().await;
                 }
                 event = self.editor.wait_event() => {
+                    let _is_auto_reload = matches!(event, EditorEvent::AutoReloadTimer);
                     let _idle_handled = self.handle_editor_event(event).await;
 
                     #[cfg(feature = "integration")]
@@ -360,6 +361,11 @@ impl Application {
                         // Errors produce an event too, so it cannot hang.
                         if _idle_handled && self.editor.write_count == 0 {
                             return true;
+                        }
+                        // Periodic auto-reload checks aren't activity; resetting the idle timer
+                        // for them would prevent the editor from ever becoming idle.
+                        if _is_auto_reload {
+                            continue;
                         }
                     }
                 }
@@ -682,6 +688,11 @@ impl Application {
             }
             EditorEvent::Redraw => {
                 self.render().await;
+            }
+            EditorEvent::AutoReloadTimer => {
+                if crate::handlers::auto_reload::reload_externally_modified(&mut self.editor) {
+                    self.render().await;
+                }
             }
             EditorEvent::IdleTimer => {
                 self.editor.clear_idle_timer();

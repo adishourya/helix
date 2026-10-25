@@ -1600,6 +1600,9 @@ impl Component for EditorView {
             Event::IdleTimeout => self.handle_idle_timeout(&mut cx),
             Event::FocusGained => {
                 self.terminal_focused = true;
+                if context.editor.config().auto_reload.focus_gained {
+                    crate::handlers::auto_reload::reload_externally_modified(context.editor);
+                }
                 EventResult::Consumed(None)
             }
             Event::FocusLost => {

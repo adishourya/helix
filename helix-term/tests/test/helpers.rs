@@ -11,7 +11,9 @@ use helix_loader::workspace_trust::WorkspaceTrust;
 use helix_term::{application::Application, args::Args, config::Config, keymap::merge_keys};
 use helix_view::{
     current_ref, doc,
-    editor::{ImplicitTrustLevelConfig, LspConfig, WordCompletion, WorkspaceTrustConfig},
+    editor::{
+        AutoReload, ImplicitTrustLevelConfig, LspConfig, WordCompletion, WorkspaceTrustConfig,
+    },
     input::parse_macro,
     Editor,
 };
@@ -315,6 +317,11 @@ pub fn test_editor_config() -> helix_view::editor::Config {
         // feature off here.
         word_completion: WordCompletion {
             enable: false,
+            ..Default::default()
+        },
+        // Don't let periodic auto-reload checks race with tests that modify files on disk.
+        auto_reload: AutoReload {
+            interval: 0,
             ..Default::default()
         },
         // Trust everything implicitly so tests don't hit popups.
