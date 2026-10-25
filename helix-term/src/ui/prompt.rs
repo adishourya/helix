@@ -99,7 +99,7 @@ impl Prompt {
             selection: None,
             history_register,
             history_pos: None,
-            background:None,
+            background: None,
             completion_fn: Box::new(completion_fn),
             callback_fn: Box::new(callback_fn),
             doc_fn: Box::new(|_| None),
@@ -412,7 +412,7 @@ impl Prompt {
         // let background = theme.get("ui.background");
         let background = self
             .background
-            .unwrap_or_else(|| theme.get("ui.background"));        
+            .unwrap_or_else(|| theme.get("ui.background"));
         // completion
 
         let max_len = self
