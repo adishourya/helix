@@ -159,6 +159,8 @@ pub struct View {
     pub object_selections: Vec<Selection>,
     /// all gutter-related configuration settings, used primarily for gutter rendering
     pub gutters: GutterConfig,
+    /// Whether a breadcrumbs header (enclosing symbols of the cursor) takes up the first row.
+    pub breadcrumbs: bool,
     /// A mapping between documents and the last history revision the view was updated at.
     /// Changes between documents and views are synced lazily when switching windows. This
     /// mapping keeps track of the last applied history revision so that only new changes
@@ -195,6 +197,7 @@ impl View {
             last_modified_docs: [None, None],
             object_selections: Vec::new(),
             gutters,
+            breadcrumbs: false,
             doc_revisions: HashMap::new(),
             diagnostics_handler: DiagnosticsHandler::new(),
         }
@@ -208,11 +211,26 @@ impl View {
     }
 
     pub fn inner_area(&self, doc: &Document) -> Rect {
-        self.area.clip_left(self.gutter_offset(doc)).clip_bottom(1) // -1 for statusline
+        self.text_area().clip_left(self.gutter_offset(doc))
     }
 
     pub fn inner_height(&self) -> usize {
-        self.area.clip_bottom(1).height.into() // -1 for statusline
+        self.text_area().height.into()
+    }
+
+    /// Number of rows taken up by the header above the text.
+    pub fn header_height(&self) -> u16 {
+        // Don't take the only row away from tiny views.
+        if self.breadcrumbs && self.area.height > 2 {
+            1
+        } else {
+            0
+        }
+    }
+
+    /// The area containing the gutters and the text: everything but the header and statusline.
+    pub fn text_area(&self) -> Rect {
+        self.area.clip_top(self.header_height()).clip_bottom(1) // -1 for statusline
     }
 
     pub fn inner_width(&self, doc: &Document) -> u16 {
@@ -631,18 +649,18 @@ impl View {
     /// Returns a tuple of usize typed line and column numbers starting with 0.
     /// Returns None if coordinates are not on the gutter.
     pub fn gutter_coords_at_screen_coords(&self, row: u16, column: u16) -> Option<Position> {
-        // 1 for status
-        if row < self.area.top() || row >= self.area.bottom() {
+        let area = self.text_area();
+        if row < area.top() || row >= area.bottom() {
             return None;
         }
 
-        if column < self.area.left() || column > self.area.right() {
+        if column < area.left() || column > area.right() {
             return None;
         }
 
         Some(Position::new(
-            (row - self.area.top()) as usize,
-            (column - self.area.left()) as usize,
+            (row - area.top()) as usize,
+            (column - area.left()) as usize,
         ))
     }
 

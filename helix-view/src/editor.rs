@@ -339,6 +339,9 @@ pub struct Config {
     pub auto_save: AutoSave,
     /// Automatically reload unmodified buffers whose files were changed by an external process.
     pub auto_reload: AutoReload,
+    /// Show the symbols (functions, classes, ...) enclosing the cursor in a header at the top
+    /// of each view. Defaults to false.
+    pub breadcrumbs: bool,
     /// Set a global text_width
     pub text_width: usize,
     /// Time in milliseconds since last keypress before idle timers trigger.
@@ -1221,6 +1224,7 @@ impl Default for Config {
             default_yank_register: '"',
             auto_save: AutoSave::default(),
             auto_reload: AutoReload::default(),
+            breadcrumbs: false,
             idle_timeout: Duration::from_millis(250),
             completion_timeout: Duration::from_millis(250),
             preview_completion_insert: true,
@@ -1563,6 +1567,13 @@ impl Editor {
         self.idle_timer
             .as_mut()
             .reset(Instant::now() + config.idle_timeout);
+    }
+
+    fn new_view(&self, doc: DocumentId) -> View {
+        let config = self.config();
+        let mut view = View::new(doc, config.gutters.clone());
+        view.breadcrumbs = config.breadcrumbs;
+        view
     }
 
     /// Schedules the next check for externally modified files, or disables the check if
@@ -1963,6 +1974,7 @@ impl Editor {
             let doc = doc_mut!(self, &view.doc);
             view.sync_changes(doc);
             view.gutters = config.gutters.clone();
+            view.breadcrumbs = config.breadcrumbs;
             view.ensure_cursor_in_view(doc, config.scrolloff)
         }
     }
@@ -2064,7 +2076,7 @@ impl Editor {
                     .try_get(self.tree.focus)
                     .filter(|v| id == v.doc) // Different Document
                     .cloned()
-                    .unwrap_or_else(|| View::new(id, self.config().gutters.clone()));
+                    .unwrap_or_else(|| self.new_view(id));
                 let view_id = self.tree.split(
                     view,
                     match action {
@@ -2261,7 +2273,7 @@ impl Editor {
                         self.syn_loader.clone(),
                     ))
                 });
-            let view = View::new(doc_id, self.config().gutters.clone());
+            let view = self.new_view(doc_id);
             let view_id = self.tree.insert(view);
             let doc = doc_mut!(self, &doc_id);
             doc.ensure_view_init(view_id);

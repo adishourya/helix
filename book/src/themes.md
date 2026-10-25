@@ -332,6 +332,9 @@ These scopes are used for theming the editor interface:
 | `ui.statusline.select`            | Statusline mode during select mode ([only if `editor.color-modes` is enabled][editor-section]) |
 | `ui.statusline.separator`         | Separator character in statusline                                                              |
 | `ui.bufferline`                   | Style for the buffer line                                                                      |
+| `ui.breadcrumbs`                  | Style for the breadcrumbs line (falls back to `ui.text`)                                       |
+| `ui.breadcrumbs.symbol`           | Style for symbol names in the breadcrumbs line                                                 |
+| `ui.breadcrumbs.separator`        | Style for separators in the breadcrumbs line (falls back to `ui.virtual`)                      |
 | `ui.bufferline.active`            | Style for the active buffer in buffer line                                                     |
 | `ui.bufferline.background`        | Style for bufferline background                                                                |
 | `ui.popup`                        | Documentation popups (e.g. Space + k)                                                          |

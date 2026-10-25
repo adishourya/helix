@@ -27,3 +27,6 @@
 
 (macro_definition
   name: (identifier) @name) @definition.macro
+
+(impl_item
+  type: (_) @name) @definition.class

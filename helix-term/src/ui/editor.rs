@@ -6,6 +6,7 @@ use crate::{
     key,
     keymap::{KeymapResult, Keymaps},
     ui::{
+        breadcrumbs,
         document::{render_document, LinePos, TextRenderer},
         statusline,
         text_decorations::{self, Decoration, DecorationManager, InlineDiagnostics},
@@ -173,7 +174,7 @@ impl EditorView {
                 editor,
                 doc,
                 view,
-                view.area,
+                view.area.clip_top(view.header_height()),
                 theme,
                 is_focused & self.terminal_focused,
                 &mut decorations,
@@ -238,6 +239,10 @@ impl EditorView {
             && config.end_of_line_diagnostics == DiagnosticFilter::Disable
         {
             Self::render_diagnostics(doc, view, inner, surface, theme);
+        }
+
+        if view.header_height() > 0 {
+            breadcrumbs::render(doc, view, &loader, theme, view.area, surface);
         }
 
         let statusline_area = view
@@ -918,9 +923,9 @@ impl EditorView {
             {
                 let area = Rect::new(
                     inner_area.x + (col - view_offset.horizontal_offset) as u16,
-                    view.area.y,
+                    inner_area.y,
                     1,
-                    view.area.height,
+                    inner_area.height,
                 );
                 if is_primary {
                     surface.set_style(area, primary_style)
