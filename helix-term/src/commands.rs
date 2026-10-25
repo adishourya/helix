@@ -458,6 +458,7 @@ impl MappableCommand {
         goto_prev_change, "Goto previous change",
         goto_first_change, "Goto first change",
         goto_last_change, "Goto last change",
+        preview_hunk, "Preview change under cursor against diff base",
         goto_line_start, "Goto line start",
         goto_line_end, "Goto line end",
         goto_column, "Goto column",
@@ -4306,6 +4307,58 @@ fn goto_next_change_impl(cx: &mut Context, direction: Direction) {
         doc.set_selection(view.id, selection)
     };
     cx.editor.apply_motion(motion);
+}
+
+fn preview_hunk(cx: &mut Context) {
+    let (view, doc) = current_ref!(cx.editor);
+    let Some(handle) = doc.diff_handle().cloned() else {
+        cx.editor
+            .set_status("Diff is not available in current buffer");
+        return;
+    };
+
+    let cursor_line = doc
+        .selection(view.id)
+        .primary()
+        .cursor_line(doc.text().slice(..)) as u32;
+    let diff = handle.load();
+    let Some(hunk_idx) = diff.hunk_at(cursor_line, true) else {
+        drop(diff);
+        cx.editor.set_status("No change under cursor");
+        return;
+    };
+    let hunk = diff.nth_hunk(hunk_idx);
+
+    let theme = &cx.editor.theme;
+    let header_style = theme.get("diff.delta");
+    let minus_style = theme.get("diff.minus");
+    let plus_style = theme.get("diff.plus");
+    let tab = " ".repeat(doc.tab_width());
+
+    let mut lines = vec![Spans::from(Span::styled(
+        format!(
+            "@@ -{},{} +{},{} @@",
+            hunk.before.start + 1,
+            hunk.before.len(),
+            hunk.after.start + 1,
+            hunk.after.len()
+        ),
+        header_style,
+    ))];
+    let mut push_lines = |text: &Rope, range: std::ops::Range<u32>, prefix: &str, style| {
+        for line in text.lines_at(range.start as usize).take(range.len()) {
+            let line = line.to_string().replace('\t', &tab);
+            let line = line.trim_end_matches(['\n', '\r']);
+            lines.push(Spans::from(Span::styled(format!("{prefix}{line}"), style)));
+        }
+    };
+    push_lines(diff.diff_base(), hunk.before.clone(), "-", minus_style);
+    push_lines(diff.doc(), hunk.after.clone(), "+", plus_style);
+    drop(diff);
+
+    let contents = ui::Text::from(tui::text::Text::from(lines));
+    let popup = Popup::new("hunk-preview", contents).auto_close(true);
+    cx.push_layer(Box::new(popup));
 }
 
 /// Returns the [Range] for a [Hunk] in the given text.
