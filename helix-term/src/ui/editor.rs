@@ -209,6 +209,9 @@ impl EditorView {
                 config.end_of_line_diagnostics,
             ));
         }
+        // Don't flag the whitespace the user is typing as trailing.
+        let trailing_whitespace_exempt_line = (is_focused && editor.mode() == Mode::Insert)
+            .then(|| doc.text().char_to_line(primary_cursor));
         render_document(
             surface,
             inner,
@@ -219,6 +222,7 @@ impl EditorView {
             overlays,
             theme,
             decorations,
+            trailing_whitespace_exempt_line,
         );
 
         // if we're not at the edge of the screen, draw a right border

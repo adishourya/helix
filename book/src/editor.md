@@ -348,7 +348,7 @@ Options for rendering whitespace with visible characters. Use `:set whitespace.r
 
 | Key | Description | Default |
 |-----|-------------|---------|
-| `render` | Whether to render whitespace. May either be `all` or `none`, or a table with sub-keys `space`, `nbsp`, `nnbsp`, `tab`, and `newline` | `"none"` |
+| `render` | Whether to render whitespace. May either be `all` or `none`, or a table with sub-keys `space`, `nbsp`, `nnbsp`, `tab`, `newline` and `trailing`. `trailing` renders whitespace at the end of lines (except on the line being edited in insert mode) using the `ui.virtual.trailing-whitespace` theme scope, independently of the other keys | `"none"` |
 | `characters` | Literal characters to use when rendering whitespace. Sub-keys may be any of `tab`, `space`, `nbsp`, `nnbsp`, `newline` or `tabpad` | See example below |
 
 Example
@@ -363,6 +363,7 @@ tab = "all"
 nbsp = "none"
 nnbsp = "none"
 newline = "none"
+trailing = "all" # highlight trailing whitespace even when other whitespace is hidden
 
 [editor.whitespace.characters]
 space = "·"

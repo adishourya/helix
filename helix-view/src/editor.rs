@@ -963,6 +963,8 @@ pub enum WhitespaceRender {
         nnbsp: Option<WhitespaceRenderValue>,
         tab: Option<WhitespaceRenderValue>,
         newline: Option<WhitespaceRenderValue>,
+        /// Whitespace at the end of a line, rendered regardless of the other settings.
+        trailing: Option<WhitespaceRenderValue>,
     },
 }
 
@@ -1014,6 +1016,14 @@ impl WhitespaceRender {
             Self::Specific {
                 default, newline, ..
             } => newline.or(default).unwrap_or(WhitespaceRenderValue::None),
+        }
+    }
+    pub fn trailing(&self) -> WhitespaceRenderValue {
+        match *self {
+            Self::Basic(val) => val,
+            Self::Specific {
+                default, trailing, ..
+            } => trailing.or(default).unwrap_or(WhitespaceRenderValue::None),
         }
     }
 }

@@ -352,6 +352,8 @@ These scopes are used for theming the editor interface:
 | `ui.text.symlink`                 | Symlink names in prompt completion                                                             |
 | `ui.virtual.ruler`                | Ruler columns (see the [`editor.rulers` config][editor-section])                               |
 | `ui.virtual.whitespace`           | Visible whitespace characters                                                                  |
+| `ui.virtual.trailing-whitespace`  | Whitespace at the end of lines when `whitespace.render.trailing` is enabled (falls back to `error`) |
+| `ui.virtual.nbsp`                 | Visible non-breaking spaces (falls back to `warning`)                                          |
 | `ui.virtual.indent-guide`         | Vertical indent width guides                                                                   |
 | `ui.virtual.inlay-hint`           | Default style for inlay hints of all kinds                                                     |
 | `ui.virtual.inlay-hint.parameter` | Style for inlay hints of kind `parameter` (language servers are not required to set a kind)    |

@@ -8,7 +8,7 @@ use helix_core::text_annotations::TextAnnotations;
 use helix_core::{visual_offset_from_block, Position, RopeSlice};
 use helix_stdx::rope::RopeSliceExt;
 use helix_view::editor::{WhitespaceConfig, WhitespaceRenderValue};
-use helix_view::graphics::Rect;
+use helix_view::graphics::{Color, Rect};
 use helix_view::theme::Style;
 use helix_view::view::ViewPosition;
 use helix_view::{Document, Theme};
@@ -38,6 +38,7 @@ pub fn render_document(
     overlay_highlights: Vec<syntax::OverlayHighlights>,
     theme: &Theme,
     decorations: DecorationManager,
+    trailing_whitespace_exempt_line: Option<usize>,
 ) {
     let mut renderer = TextRenderer::new(
         surface,
@@ -46,6 +47,7 @@ pub fn render_document(
         Position::new(offset.vertical_offset, offset.horizontal_offset),
         viewport,
     );
+    renderer.trailing_whitespace_exempt_line = trailing_whitespace_exempt_line;
     render_text(
         &mut renderer,
         doc.text().slice(..),
@@ -90,6 +92,9 @@ pub fn render_text(
     let mut is_in_indent_area = true;
     let mut last_line_indent_level = 0;
     let mut reached_view_top = false;
+    // Char index where the trailing whitespace of `trailing_whitespace_line` starts.
+    let mut trailing_whitespace_line = usize::MAX;
+    let mut trailing_whitespace_start = usize::MAX;
 
     loop {
         let Some(mut grapheme) = formatter.next() else {
@@ -157,10 +162,24 @@ pub fn render_text(
         decorations.decorate_grapheme(renderer, &grapheme);
 
         let virt = grapheme.is_virtual();
+        if renderer.trailing_whitespace && !virt && grapheme.line_idx != trailing_whitespace_line {
+            trailing_whitespace_line = grapheme.line_idx;
+            trailing_whitespace_start =
+                if renderer.trailing_whitespace_exempt_line == Some(grapheme.line_idx) {
+                    usize::MAX
+                } else {
+                    trailing_whitespace_start_of_line(text, grapheme.line_idx)
+                };
+        }
+        let is_trailing_whitespace = !virt
+            && grapheme.char_idx >= trailing_whitespace_start
+            && grapheme.is_whitespace()
+            && !matches!(grapheme.raw, Grapheme::Newline);
         let grapheme_width = renderer.draw_grapheme(
             &grapheme,
             grapheme_style,
             virt,
+            is_trailing_whitespace,
             &mut last_line_indent_level,
             &mut is_in_indent_area,
             grapheme.visual_pos,
@@ -170,6 +189,29 @@ pub fn render_text(
 
     renderer.draw_indent_guides(last_line_indent_level, last_line_pos.visual_line);
     decorations.render_virtual_lines(renderer, last_line_pos, last_line_end)
+}
+
+/// Returns the char index at which the run of whitespace at the end of `line` starts, or
+/// `usize::MAX` if the line doesn't end in whitespace.
+fn trailing_whitespace_start_of_line(text: RopeSlice, line: usize) -> usize {
+    let line_end = helix_core::line_ending::line_end_char_index(&text, line);
+    let line_start = text.line_to_char(line);
+    let mut start = line_end;
+    for ch in text
+        .slice(line_start..line_end)
+        .chars_at(line_end - line_start)
+        .reversed()
+    {
+        if !ch.is_whitespace() {
+            break;
+        }
+        start -= 1;
+    }
+    if start == line_end {
+        usize::MAX
+    } else {
+        start
+    }
 }
 
 #[derive(Debug)]
@@ -185,6 +227,18 @@ pub struct TextRenderer<'a> {
     pub space: String,
     pub tab: String,
     pub virtual_tab: String,
+    /// Render whitespace at the end of lines with `trailing_whitespace_style`.
+    pub trailing_whitespace: bool,
+    pub trailing_whitespace_style: Style,
+    /// Document line whose trailing whitespace is not highlighted (the line being typed on).
+    pub trailing_whitespace_exempt_line: Option<usize>,
+    /// Whitespace symbols used for trailing whitespace, independent of `render`.
+    pub trailing_space: String,
+    pub trailing_tab: String,
+    pub trailing_nbsp: String,
+    pub trailing_nnbsp: String,
+    /// Style for rendered non-breaking spaces, which are usually unintended.
+    pub nbsp_style: Style,
     pub indent_width: u16,
     pub starting_indent: usize,
     pub draw_indent_guides: bool,
@@ -212,10 +266,11 @@ impl<'a> TextRenderer<'a> {
         } = &editor_config.whitespace;
 
         let tab_width = doc.tab_width();
+        let visible_tab: String = std::iter::once(ws_chars.tab)
+            .chain(std::iter::repeat_n(ws_chars.tabpad, tab_width - 1))
+            .collect();
         let tab = if ws_render.tab() == WhitespaceRenderValue::All {
-            std::iter::once(ws_chars.tab)
-                .chain(std::iter::repeat_n(ws_chars.tabpad, tab_width - 1))
-                .collect()
+            visible_tab.clone()
         } else {
             " ".repeat(tab_width)
         };
@@ -246,8 +301,25 @@ impl<'a> TextRenderer<'a> {
 
         let indent_width = doc.indent_style.indent_width(tab_width) as u16;
 
+        let trailing_whitespace_style = theme
+            .try_get_exact("ui.virtual.trailing-whitespace")
+            .or_else(|| theme.try_get_exact("error"))
+            .unwrap_or_else(|| Style::default().fg(Color::Red));
+        let nbsp_style = theme
+            .try_get_exact("ui.virtual.nbsp")
+            .or_else(|| theme.try_get_exact("warning"))
+            .unwrap_or_else(|| Style::default().fg(Color::Yellow));
+
         TextRenderer {
             surface,
+            trailing_whitespace: ws_render.trailing() == WhitespaceRenderValue::All,
+            trailing_whitespace_style,
+            trailing_whitespace_exempt_line: None,
+            trailing_space: ws_chars.space.into(),
+            trailing_tab: visible_tab,
+            trailing_nbsp: ws_chars.nbsp.into(),
+            trailing_nnbsp: ws_chars.nnbsp.into(),
+            nbsp_style,
             indent_guide_char: editor_config.indent_guides.character.into(),
             newline,
             nbsp,
@@ -316,6 +388,7 @@ impl<'a> TextRenderer<'a> {
         grapheme: &FormattedGrapheme,
         grapheme_style: GraphemeStyle,
         is_virtual: bool,
+        is_trailing_whitespace: bool,
         last_indent_level: &mut usize,
         is_in_indent_area: &mut bool,
         mut position: Position,
@@ -332,17 +405,33 @@ impl<'a> TextRenderer<'a> {
         if is_whitespace {
             style = style.patch(self.whitespace_style);
         }
+        let is_nbsp =
+            matches!(grapheme.raw, Grapheme::Other { ref g } if g == "\u{00A0}" || g == "\u{202F}");
+        if is_trailing_whitespace {
+            style = style.patch(self.trailing_whitespace_style);
+        } else if is_nbsp && !is_virtual && self.nbsp != " " {
+            style = style.patch(self.nbsp_style);
+        }
         style = style.patch(grapheme_style.overlay_style);
 
         let width = grapheme.width();
         let mut is_tab = false;
-        let space = if is_virtual { " " } else { &self.space };
-        let nbsp = if is_virtual { " " } else { &self.nbsp };
-        let nnbsp = if is_virtual { " " } else { &self.nnbsp };
-        let tab = if is_virtual {
-            &self.virtual_tab
+        let (space, nbsp, nnbsp, tab) = if is_virtual {
+            (" ", " ", " ", self.virtual_tab.as_str())
+        } else if is_trailing_whitespace {
+            (
+                self.trailing_space.as_str(),
+                self.trailing_nbsp.as_str(),
+                self.trailing_nnbsp.as_str(),
+                self.trailing_tab.as_str(),
+            )
         } else {
-            &self.tab
+            (
+                self.space.as_str(),
+                self.nbsp.as_str(),
+                self.nnbsp.as_str(),
+                self.tab.as_str(),
+            )
         };
         let grapheme = match grapheme.raw {
             Grapheme::Tab { width } => {
@@ -578,5 +667,27 @@ impl<'t> OverlayHighlighter<'t> {
             acc.patch(self.theme.highlight(highlight))
         });
         self.update_pos();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use helix_core::Rope;
+
+    use super::trailing_whitespace_start_of_line;
+
+    #[test]
+    fn trailing_whitespace_start() {
+        let text = Rope::from("no trailing\nab  \n\t \u{00A0}\n\nend \t");
+        let text = text.slice(..);
+        assert_eq!(usize::MAX, trailing_whitespace_start_of_line(text, 0));
+        // "ab  " starts at char 12
+        assert_eq!(14, trailing_whitespace_start_of_line(text, 1));
+        // whitespace-only line
+        assert_eq!(17, trailing_whitespace_start_of_line(text, 2));
+        // empty line
+        assert_eq!(usize::MAX, trailing_whitespace_start_of_line(text, 3));
+        // last line without a line ending
+        assert_eq!(25, trailing_whitespace_start_of_line(text, 4));
     }
 }
