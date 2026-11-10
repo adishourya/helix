@@ -11,6 +11,7 @@
 - [`[editor.auto-pairs]` Section](#editorauto-pairs-section)
 - [`[editor.auto-save]` Section](#editorauto-save-section)
 - [`[editor.auto-reload]` Section](#editorauto-reload-section)
+- [`[editor.smooth-scroll]` Section](#editorsmooth-scroll-section)
 - [`[editor.search]` Section](#editorsearch-section)
 - [`[editor.whitespace]` Section](#editorwhitespace-section)
 - [`[editor.indent-guides]` Section](#editorindent-guides-section)
@@ -55,6 +56,7 @@
 | `undercurl` | Whether to override automatic detection of terminal undercurl support in the event of a false negative | `false` |
 | `rulers` | List of column positions at which to display the rulers. Can be overridden by language specific `rulers` in `languages.toml` file | `[]` |
 | `bufferline` | Renders a line at the top of the editor displaying open buffers. Can be `always`, `never` or `multiple` (only shown if more than one buffer is in use) | `"never"` |
+| `fps` | Maximum frames per second for animations (see [`smooth-scroll`](#editorsmooth-scroll-section)) and redraws triggered in the background, such as by language servers. Redraws in response to keypresses are always immediate | `60` |
 | `breadcrumbs` | Renders a line at the top of each view showing the file and the symbols (modules, classes, functions, ...) enclosing the cursor, using the language's `tags.scm` query | `false` |
 | `color-modes` | Whether to color the mode indicator with different colors depending on the mode itself | `false` |
 | `text-width` | Maximum line length. Used for the `:reflow` command and soft-wrapping if `soft-wrap.wrap-at-text-width` is set | `80` |
@@ -332,6 +334,24 @@ Reload buffers whose files were changed on disk by an external process (e.g. `gi
 |--|--|---------|
 | `focus-gained` | Check for external changes when the terminal regains focus. Requires [focus event support](https://github.com/helix-editor/helix/wiki/Terminal-Support) from your terminal | `true` |
 | `interval` | Time in milliseconds between periodic checks for external changes. Set to `0` to disable periodic checks. | `1000` |
+
+### `[editor.smooth-scroll]` Section
+
+Animate the view when it jumps by more than one line, e.g. when paging with `Ctrl-d`, jumping with `gg`/`G`, searching with `n` or going to a definition. Since the terminal draws whole lines, the view moves one line at a time, slowing down towards the end. Jumps of more than three screens only animate the last screen. The frame rate is set by [`fps`](#editor-section).
+
+| Key | Description | Default |
+|--|--|---------|
+| `enable` | Whether to animate view jumps | `false` |
+| `duration` | Length of the animation in milliseconds | `150` |
+
+```toml
+[editor]
+fps = 120
+
+[editor.smooth-scroll]
+enable = true
+duration = 150
+```
 
 ### `[editor.search]` Section
 

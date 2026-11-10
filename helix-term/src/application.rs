@@ -712,6 +712,9 @@ impl Application {
         #[cfg(not(windows))]
         use termina::escape::csi;
 
+        // Commands must see where an animated view is heading, not an intermediate frame.
+        self.editor.finish_scroll_animations();
+
         let mut cx = crate::compositor::Context {
             editor: &mut self.editor,
             jobs: &mut self.jobs,

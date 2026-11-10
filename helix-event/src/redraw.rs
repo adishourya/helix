@@ -22,8 +22,8 @@ runtime_local! {
 
 pub type RenderLockGuard = RwLockReadGuard<'static, ()>;
 
-/// Requests that the editor is redrawn. The redraws are debounced (currently to
-/// 30FPS) so this can be called many times without causing a ton of frames to
+/// Requests that the editor is redrawn. The redraws are debounced (to the
+/// `editor.fps` setting) so this can be called many times without causing a ton of frames to
 /// be rendered.
 pub fn request_redraw() {
     REDRAW_NOTIFY.notify_one();

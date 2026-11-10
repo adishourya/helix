@@ -1666,6 +1666,10 @@ impl Component for EditorView {
         // if the terminal size suddenly changed, we need to trigger a resize
         cx.editor.resize(editor_area);
 
+        if cx.editor.step_scroll_animations() {
+            cx.editor.request_frame();
+        }
+
         if use_bufferline {
             Self::render_bufferline(cx.editor, area.with_height(1), surface);
         }

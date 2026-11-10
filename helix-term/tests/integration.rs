@@ -21,5 +21,6 @@ mod test {
     mod command_line;
     mod commands;
     mod movement;
+    mod smooth_scroll;
     mod splits;
 }

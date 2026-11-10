@@ -10,6 +10,7 @@ use crate::{
     info::Info,
     input::KeyEvent,
     register::Registers,
+    scroll_animation::ScrollAnimations,
     theme::{self, Theme},
     tree::{self, Tree},
     Document, DocumentId, View, ViewId,
@@ -342,6 +343,11 @@ pub struct Config {
     /// Show the symbols (functions, classes, ...) enclosing the cursor in a header at the top
     /// of each view. Defaults to false.
     pub breadcrumbs: bool,
+    /// Animate the view when it jumps by more than a line.
+    pub smooth_scroll: SmoothScroll,
+    /// Maximum number of frames per second for animations and asynchronous redraws.
+    /// Defaults to 60.
+    pub fps: u16,
     /// Set a global text_width
     pub text_width: usize,
     /// Time in milliseconds since last keypress before idle timers trigger.
@@ -1059,6 +1065,31 @@ impl Default for AutoReload {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case", deny_unknown_fields)]
+pub struct SmoothScroll {
+    /// Animate view jumps of more than one line. Defaults to false.
+    pub enable: bool,
+    /// Duration of the animation in milliseconds. Defaults to 150ms.
+    pub duration: u64,
+}
+
+impl Default for SmoothScroll {
+    fn default() -> Self {
+        Self {
+            enable: false,
+            duration: 150,
+        }
+    }
+}
+
+impl Config {
+    /// Minimum time between two frames, derived from `fps`.
+    pub fn frame_interval(&self) -> Duration {
+        Duration::from_micros(1_000_000 / self.fps.max(1) as u64)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AutoSaveAfterDelay {
     #[serde(default)]
@@ -1235,6 +1266,8 @@ impl Default for Config {
             auto_save: AutoSave::default(),
             auto_reload: AutoReload::default(),
             breadcrumbs: false,
+            smooth_scroll: SmoothScroll::default(),
+            fps: 60,
             idle_timeout: Duration::from_millis(250),
             completion_timeout: Duration::from_millis(250),
             preview_completion_insert: true,
@@ -1358,6 +1391,7 @@ pub struct Editor {
     pub idle_timer: Pin<Box<Sleep>>,
     redraw_timer: Pin<Box<Sleep>>,
     auto_reload_timer: Pin<Box<Sleep>>,
+    pub scroll_animations: ScrollAnimations,
     last_motion: Option<Motion>,
     pub last_completion: Option<CompleteAction>,
     pub last_cwd: Option<PathBuf>,
@@ -1502,6 +1536,7 @@ impl Editor {
                 0 => Duration::from_secs(86400 * 365 * 30),
                 interval => Duration::from_millis(interval),
             })),
+            scroll_animations: ScrollAnimations::default(),
             last_motion: None,
             last_completion: None,
             last_cwd: None,
@@ -1588,6 +1623,14 @@ impl Editor {
 
     /// Schedules the next check for externally modified files, or disables the check if
     /// `auto-reload.interval` is 0.
+    /// Schedules a redraw after one frame interval, used to drive animations.
+    pub fn request_frame(&mut self) {
+        let deadline = Instant::now() + self.config().frame_interval();
+        if deadline < self.redraw_timer.deadline() {
+            self.redraw_timer.as_mut().reset(deadline);
+        }
+    }
+
     pub fn reset_auto_reload_timer(&mut self) {
         let interval = self.config().auto_reload.interval;
         let deadline = if interval == 0 {
@@ -2554,7 +2597,7 @@ impl Editor {
                 _ = helix_event::redraw_requested() => {
                     if  !self.needs_redraw{
                         self.needs_redraw = true;
-                        let timeout = Instant::now() + Duration::from_millis(33);
+                        let timeout = Instant::now() + self.config().frame_interval();
                         if timeout < self.idle_timer.deadline() && timeout < self.redraw_timer.deadline(){
                             self.redraw_timer.as_mut().reset(timeout)
                         }
