@@ -86,6 +86,120 @@ async fn keeps_modified_buffer_changed_on_disk() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn reload_unsaved_app(file: &tempfile::NamedTempFile) -> anyhow::Result<Application> {
+    let mut config = test_config();
+    config.editor.auto_reload = AutoReload {
+        interval: 10,
+        reload_unsaved: true,
+        ..Default::default()
+    };
+    AppBuilder::new()
+        .with_config(config)
+        .with_file(file.path(), None)
+        .build()
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn reload_unsaved_replaces_unsaved_changes_and_keeps_them_in_history() -> anyhow::Result<()> {
+    let file = temp_file_with_contents("before\n")?;
+    let mut app = reload_unsaved_app(&file)?;
+
+    test_key_sequences(
+        &mut app,
+        vec![
+            (
+                Some("ihello <esc>"),
+                Some(&|_| write_externally(&file, "after\n").unwrap()),
+            ),
+            (
+                Some("<esc>"),
+                Some(&|app| {
+                    let doc = doc!(app.editor);
+                    assert_eq!("after\n", doc.text().to_string());
+                    assert!(!doc.is_modified());
+                    let (msg, severity) = app.editor.get_status().unwrap();
+                    assert_eq!(&helix_view::editor::Severity::Warning, severity);
+                    assert!(msg.contains("undo"), "{msg}");
+                }),
+            ),
+            (
+                Some("u"),
+                Some(&|app| {
+                    let doc = doc!(app.editor);
+                    assert_eq!("hello before\n", doc.text().to_string());
+                    assert!(doc.is_modified());
+                }),
+            ),
+        ],
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn reload_unsaved_waits_for_insert_mode_to_end() -> anyhow::Result<()> {
+    let file = temp_file_with_contents("before\n")?;
+    let mut app = reload_unsaved_app(&file)?;
+
+    test_key_sequences(
+        &mut app,
+        vec![
+            (
+                Some("ihello "),
+                Some(&|_| write_externally(&file, "after\n").unwrap()),
+            ),
+            (
+                Some("world"),
+                Some(&|app| {
+                    assert_eq!("hello worldbefore\n", doc!(app.editor).text().to_string());
+                }),
+            ),
+            (
+                Some("<esc>"),
+                Some(&|app| assert_eq!("after\n", doc!(app.editor).text().to_string())),
+            ),
+        ],
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn file_watcher_reloads_without_polling() -> anyhow::Result<()> {
+    let file = temp_file_with_contents("before\n")?;
+    let mut config = test_config();
+    config.editor.auto_reload = AutoReload {
+        interval: 0,
+        focus_gained: false,
+        watch: true,
+        ..Default::default()
+    };
+    let mut app = AppBuilder::new()
+        .with_config(config)
+        .with_file(file.path(), None)
+        .build()?;
+
+    test_key_sequences(
+        &mut app,
+        vec![
+            // Opening the file starts watching its directory.
+            (None, Some(&|_| write_externally(&file, "after\n").unwrap())),
+            (
+                Some("<esc>"),
+                Some(&|app| assert_eq!("after\n", doc!(app.editor).text().to_string())),
+            ),
+        ],
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
 fn git(args: &str, dir: &std::path::Path) {
     let status = std::process::Command::new("git")
         .arg("-C")

@@ -328,12 +328,16 @@ Control auto save behavior.
 
 ### `[editor.auto-reload]` Section
 
-Reload buffers whose files were changed on disk by an external process (e.g. `git checkout`, a formatter or another tool). Buffers with unsaved changes are never reloaded; a warning is shown instead. The same checks also refresh the diff gutter and branch name when the repository's HEAD, branch or index changes (e.g. after a `git commit` or `git checkout` in another terminal). Each check costs a few `stat` calls per open file.
+Reload buffers whose files were changed on disk by an external process (e.g. `git checkout`, a formatter or another tool). By default buffers with unsaved changes are not reloaded; a warning is shown instead. The same checks also refresh the diff gutter and branch name when the repository's HEAD, branch or index changes (e.g. after a `git commit` or `git checkout` in another terminal). Each check costs a few `stat` calls per open file.
+
+With `watch` enabled, the operating system reports changes in the directories of open files (and of their git repositories), so changes are picked up within milliseconds. Periodic checks remain as a fallback, e.g. for network file systems that don't report changes.
 
 | Key | Description | Default |
 |--|--|---------|
 | `focus-gained` | Check for external changes when the terminal regains focus. Requires [focus event support](https://github.com/helix-editor/helix/wiki/Terminal-Support) from your terminal | `true` |
 | `interval` | Time in milliseconds between periodic checks for external changes. Set to `0` to disable periodic checks. | `1000` |
+| `watch` | Get notified by the operating system about changes to open files instead of waiting for the next periodic check | `true` |
+| `reload-unsaved` | Also reload buffers with unsaved changes. The unsaved changes stay in the undo history, so `u` brings them back. The buffer being edited in insert mode is reloaded when leaving insert mode | `false` |
 
 ### `[editor.smooth-scroll]` Section
 

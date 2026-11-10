@@ -2041,6 +2041,11 @@ impl Document {
         self.vcs_state = provider_registry.state_watcher(&path);
     }
 
+    /// Directories to watch for changes of the VCS state, see [`Document::vcs_state_changed`].
+    pub fn vcs_watch_dirs(&self) -> Option<[(PathBuf, bool); 3]> {
+        self.vcs_state.as_ref().map(|watcher| watcher.watch_dirs())
+    }
+
     /// Returns `true` if the VCS state (HEAD, branch, index) changed since the diff base was
     /// last read, meaning [`Document::refresh_vcs`] should be called.
     pub fn vcs_state_changed(&mut self) -> bool {

@@ -200,6 +200,18 @@ impl VcsStateWatcher {
         ]
     }
 
+    /// Directories containing the files whose changes [`VcsStateWatcher::changed`] detects,
+    /// and whether they have to be watched recursively (branch names may contain `/`).
+    pub fn watch_dirs(&self) -> [(PathBuf, bool); 3] {
+        [
+            // HEAD and index
+            (self.git_dir.clone(), false),
+            // packed-refs
+            (self.common_dir.clone(), false),
+            (self.common_dir.join("refs").join("heads"), true),
+        ]
+    }
+
     /// Returns `true` if the repository state changed since the watcher was created or this
     /// function last returned `true`.
     pub fn changed(&mut self) -> bool {

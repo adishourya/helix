@@ -322,6 +322,7 @@ pub fn test_editor_config() -> helix_view::editor::Config {
         // Don't let periodic auto-reload checks race with tests that modify files on disk.
         auto_reload: AutoReload {
             interval: 0,
+            watch: false,
             ..Default::default()
         },
         // Trust everything implicitly so tests don't hit popups.

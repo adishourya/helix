@@ -5,6 +5,7 @@ use crate::{
         DocumentOpenError, DocumentSavedEventFuture, DocumentSavedEventResult, Mode, SavePoint,
     },
     events::{DocumentDidClose, DocumentDidOpen, DocumentFocusLost},
+    file_watcher::FileWatcher,
     graphics::{CursorKind, Rect},
     handlers::Handlers,
     info::Info,
@@ -1053,6 +1054,12 @@ pub struct AutoReload {
     /// Interval in milliseconds at which open files are checked for external changes.
     /// Set to 0 to disable periodic checks. Defaults to 1000ms.
     pub interval: u64,
+    /// Get notified by the operating system about changes to open files, so they are picked
+    /// up immediately rather than on the next periodic check. Defaults to true.
+    pub watch: bool,
+    /// Also reload buffers with unsaved changes. The unsaved changes stay in the undo history.
+    /// Defaults to false, which only shows a warning.
+    pub reload_unsaved: bool,
 }
 
 impl Default for AutoReload {
@@ -1060,6 +1067,8 @@ impl Default for AutoReload {
         Self {
             focus_gained: true,
             interval: 1000,
+            watch: true,
+            reload_unsaved: false,
         }
     }
 }
@@ -1392,6 +1401,8 @@ pub struct Editor {
     redraw_timer: Pin<Box<Sleep>>,
     auto_reload_timer: Pin<Box<Sleep>>,
     pub scroll_animations: ScrollAnimations,
+    /// Started on the first auto-reload check if `auto-reload.watch` is enabled.
+    file_watcher: Option<FileWatcher>,
     last_motion: Option<Motion>,
     pub last_completion: Option<CompleteAction>,
     pub last_cwd: Option<PathBuf>,
@@ -1537,6 +1548,7 @@ impl Editor {
                 interval => Duration::from_millis(interval),
             })),
             scroll_animations: ScrollAnimations::default(),
+            file_watcher: None,
             last_motion: None,
             last_completion: None,
             last_cwd: None,
@@ -1629,6 +1641,37 @@ impl Editor {
         if deadline < self.redraw_timer.deadline() {
             self.redraw_timer.as_mut().reset(deadline);
         }
+    }
+
+    /// Runs the auto-reload check after `delay`, unless one is due sooner.
+    pub fn schedule_auto_reload_check(&mut self, delay: Duration) {
+        let deadline = Instant::now() + delay;
+        if deadline < self.auto_reload_timer.deadline() {
+            self.auto_reload_timer.as_mut().reset(deadline);
+        }
+    }
+
+    /// Watches the directories of open files and their repositories, or nothing if
+    /// `auto-reload.watch` is disabled.
+    pub fn sync_file_watches(&mut self) {
+        if !self.config().auto_reload.watch {
+            if let Some(watcher) = &mut self.file_watcher {
+                watcher.clear();
+            }
+            return;
+        }
+        let mut wanted = HashMap::new();
+        for doc in self.documents.values() {
+            if let Some(dir) = doc.path().and_then(|path| path.parent()) {
+                wanted.entry(dir.to_path_buf()).or_insert(false);
+            }
+            for (dir, recursive) in doc.vcs_watch_dirs().into_iter().flatten() {
+                *wanted.entry(dir).or_insert(false) |= recursive;
+            }
+        }
+        self.file_watcher
+            .get_or_insert_with(FileWatcher::new)
+            .sync(wanted);
     }
 
     pub fn reset_auto_reload_timer(&mut self) {
@@ -2611,6 +2654,10 @@ impl Editor {
                 _ = &mut self.idle_timer  => {
                     return EditorEvent::IdleTimer
                 }
+                Some(()) = recv_file_event(&mut self.file_watcher) => {
+                    // Let bursts of writes settle before checking.
+                    self.schedule_auto_reload_check(Duration::from_millis(10));
+                }
                 _ = &mut self.auto_reload_timer => {
                     self.reset_auto_reload_timer();
                     return EditorEvent::AutoReloadTimer
@@ -2807,5 +2854,13 @@ impl CursorCache {
 
     pub fn reset(&self) {
         self.0.set(None)
+    }
+}
+
+/// Waits for the next file system event, or forever if no watcher is running.
+async fn recv_file_event(watcher: &mut Option<FileWatcher>) -> Option<()> {
+    match watcher {
+        Some(watcher) => watcher.events.recv().await,
+        None => std::future::pending().await,
     }
 }
