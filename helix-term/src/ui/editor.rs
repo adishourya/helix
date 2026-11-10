@@ -30,7 +30,7 @@ use helix_view::{
     graphics::{Color, CursorKind, Modifier, Rect, Style},
     input::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     keyboard::{KeyCode, KeyModifiers},
-    Document, Editor, Theme, View,
+    Document, Editor, Theme, View, ViewId,
 };
 use std::{mem::take, num::NonZeroUsize, ops, path::PathBuf, rc::Rc};
 
@@ -45,6 +45,8 @@ pub struct EditorView {
     spinners: ProgressSpinners,
     /// Tracks if the terminal window is focused by reaction to terminal focus events
     terminal_focused: bool,
+    /// The view whose scrollbar is being dragged with the mouse.
+    scrollbar_drag: Option<ViewId>,
 }
 
 #[derive(Debug, Clone)]
@@ -68,6 +70,7 @@ impl EditorView {
             completion: None,
             spinners: ProgressSpinners::default(),
             terminal_focused: true,
+            scrollbar_drag: None,
         }
     }
 
@@ -249,6 +252,10 @@ impl EditorView {
             breadcrumbs::render(doc, view, &loader, theme, view.area, surface);
         }
 
+        if let Some(bar) = view.scrollbar_area() {
+            Self::render_scrollbar(doc, view, bar, theme, surface);
+        }
+
         let statusline_area = view
             .area
             .clip_top(view.area.height.saturating_sub(1))
@@ -258,6 +265,30 @@ impl EditorView {
             statusline::RenderContext::new(editor, doc, view, is_focused, &self.spinners);
 
         statusline::render(&mut context, statusline_area, surface)
+    }
+
+    /// Like the scrollbar of menus: `fg` colors the thumb, `bg` the track.
+    fn render_scrollbar(
+        doc: &Document,
+        view: &View,
+        bar: Rect,
+        theme: &Theme,
+        surface: &mut Surface,
+    ) {
+        let style = theme
+            .try_get("ui.scrollbar")
+            .unwrap_or_else(|| theme.get("ui.menu.scroll"));
+        let thumb = view.scrollbar_thumb(doc).unwrap_or_default();
+        for row in 0..bar.height {
+            let color = if thumb.contains(&row) {
+                style.fg
+            } else {
+                style.bg
+            };
+            let cell = &mut surface[(bar.x, bar.y + row)];
+            cell.set_symbol("▐");
+            cell.set_fg(color.unwrap_or(Color::Reset));
+        }
     }
 
     pub fn render_rulers(
@@ -1213,6 +1244,34 @@ impl EditorView {
         self.pseudo_pending.clear();
     }
 
+    /// Scrolls the view so that its scrollbar thumb is centered on the screen row `row`, moving
+    /// the cursor into the view like scrolling with the mouse wheel does.
+    fn scroll_to_scrollbar_row(cxt: &mut commands::Context, view_id: ViewId, row: u16) {
+        cxt.editor.focus(view_id);
+        let (view, doc) = current!(cxt.editor);
+        let Some(bar) = view.scrollbar_area() else {
+            return;
+        };
+        let line = view.scrollbar_line_at(doc, row.saturating_sub(bar.y).min(bar.height - 1));
+        let mut offset = doc.view_offset(view_id);
+        let top = doc
+            .text()
+            .char_to_line(offset.anchor.min(doc.text().len_chars()));
+        if line == top && offset.vertical_offset == 0 {
+            return;
+        }
+        let direction = if line > top {
+            Direction::Forward
+        } else {
+            Direction::Backward
+        };
+        offset.anchor = doc.text().line_to_char(line);
+        offset.vertical_offset = 0;
+        doc.set_view_offset(view_id, offset);
+        // Scrolling by 0 lines only pulls the cursor back into the view.
+        commands::scroll(cxt, 0, direction, false);
+    }
+
     fn handle_mouse_event(
         &mut self,
         event: &MouseEvent,
@@ -1249,6 +1308,29 @@ impl EditorView {
                     .map(|coords| (coords, view.id))
             })
         };
+
+        match kind {
+            MouseEventKind::Down(MouseButton::Left) => {
+                self.scrollbar_drag = cxt.editor.tree.views().find_map(|(view, _focus)| {
+                    let bar = view.scrollbar_area()?;
+                    (column == bar.x && row >= bar.y && row < bar.bottom()).then_some(view.id)
+                });
+            }
+            MouseEventKind::Up(MouseButton::Left) if self.scrollbar_drag.take().is_some() => {
+                return EventResult::Consumed(None);
+            }
+            _ => {}
+        }
+        if let Some(view_id) = self.scrollbar_drag {
+            if matches!(
+                kind,
+                MouseEventKind::Down(MouseButton::Left) | MouseEventKind::Drag(MouseButton::Left)
+            ) && cxt.editor.tree.contains(view_id)
+            {
+                Self::scroll_to_scrollbar_row(cxt, view_id, row);
+                return EventResult::Consumed(None);
+            }
+        }
 
         match kind {
             MouseEventKind::Down(MouseButton::Left) => {

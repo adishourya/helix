@@ -161,6 +161,8 @@ pub struct View {
     pub gutters: GutterConfig,
     /// Whether a breadcrumbs header (enclosing symbols of the cursor) takes up the first row.
     pub breadcrumbs: bool,
+    /// Whether a scrollbar takes up the last column.
+    pub scrollbar: bool,
     /// A mapping between documents and the last history revision the view was updated at.
     /// Changes between documents and views are synced lazily when switching windows. This
     /// mapping keeps track of the last applied history revision so that only new changes
@@ -198,6 +200,7 @@ impl View {
             object_selections: Vec::new(),
             gutters,
             breadcrumbs: false,
+            scrollbar: false,
             doc_revisions: HashMap::new(),
             diagnostics_handler: DiagnosticsHandler::new(),
         }
@@ -228,13 +231,69 @@ impl View {
         }
     }
 
-    /// The area containing the gutters and the text: everything but the header and statusline.
+    /// The area containing the gutters and the text: everything but the header, scrollbar and
+    /// statusline.
     pub fn text_area(&self) -> Rect {
-        self.area.clip_top(self.header_height()).clip_bottom(1) // -1 for statusline
+        let area = self.area.clip_top(self.header_height()).clip_bottom(1); // -1 for statusline
+        area.clip_right(self.scrollbar_area().map_or(0, |bar| bar.width))
     }
 
     pub fn inner_width(&self, doc: &Document) -> u16 {
-        self.area.clip_left(self.gutter_offset(doc)).width
+        self.inner_area(doc).width
+    }
+
+    /// The column to the right of the text taken up by the scrollbar, if enabled.
+    pub fn scrollbar_area(&self) -> Option<Rect> {
+        // Don't take a column away from tiny views.
+        if !self.scrollbar || self.area.width < 10 {
+            return None;
+        }
+        let area = self.area.clip_top(self.header_height()).clip_bottom(1);
+        Some(area.clip_left(area.width - 1))
+    }
+
+    /// Number of lines in the document, not counting the empty line after a final line ending,
+    /// and the line at the top of the view.
+    fn scroll_lines(&self, doc: &Document) -> (usize, usize) {
+        let text = doc.text();
+        let mut len = text.len_lines();
+        if len > 1 && text.line(len - 1).len_chars() == 0 {
+            len -= 1;
+        }
+        let anchor = doc.view_offset(self.id).anchor.min(text.len_chars());
+        (len, text.char_to_line(anchor))
+    }
+
+    /// The rows of the scrollbar covered by its thumb, relative to the top of the scrollbar, or
+    /// `None` if the whole document is visible.
+    pub fn scrollbar_thumb(&self, doc: &Document) -> Option<std::ops::Range<u16>> {
+        let height = self.scrollbar_area()?.height as usize;
+        let (len, top) = self.scroll_lines(doc);
+        if height == 0 || (len <= height && top == 0) {
+            return None;
+        }
+        // Scrolling past the end makes the document effectively longer.
+        let len = len.max(top + height);
+        let thumb = height.pow(2).div_ceil(len).clamp(1, height);
+        let start = ((height - thumb) * top / (len - height).max(1)).min(height - thumb);
+        Some(start as u16..(start + thumb) as u16)
+    }
+
+    /// The line to scroll to so that the scrollbar thumb is centered on `row` (relative to the
+    /// top of the scrollbar), keeping the last line at the bottom of the view.
+    pub fn scrollbar_line_at(&self, doc: &Document, row: u16) -> usize {
+        let Some(bar) = self.scrollbar_area() else {
+            return 0;
+        };
+        let height = bar.height as usize;
+        let (len, _) = self.scroll_lines(doc);
+        let max_top = len.saturating_sub(height);
+        let thumb = height.pow(2).div_ceil(len.max(height)).clamp(1, height);
+        if height <= thumb {
+            return 0;
+        }
+        let row = (row as usize).saturating_sub(thumb / 2).min(height - thumb);
+        (row * max_top).div_ceil(height - thumb).min(max_top)
     }
 
     pub fn gutters(&self) -> &[GutterType] {

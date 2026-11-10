@@ -57,6 +57,7 @@
 | `rulers` | List of column positions at which to display the rulers. Can be overridden by language specific `rulers` in `languages.toml` file | `[]` |
 | `bufferline` | Renders a line at the top of the editor displaying open buffers. Can be `always`, `never` or `multiple` (only shown if more than one buffer is in use) | `"never"` |
 | `fps` | Maximum frames per second for animations (see [`smooth-scroll`](#editorsmooth-scroll-section)) and redraws triggered in the background, such as by language servers. Redraws in response to keypresses are always immediate | `60` |
+| `scrollbar` | Renders a scrollbar in the last column of each view. Click or drag it with the mouse to scroll | `false` |
 | `breadcrumbs` | Renders a line at the top of each view showing the file and the symbols (modules, classes, functions, ...) enclosing the cursor, using the language's `tags.scm` query | `false` |
 | `color-modes` | Whether to color the mode indicator with different colors depending on the mode itself | `false` |
 | `text-width` | Maximum line length. Used for the `:reflow` command and soft-wrapping if `soft-wrap.wrap-at-text-width` is set | `80` |

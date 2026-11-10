@@ -344,6 +344,8 @@ pub struct Config {
     /// Show the symbols (functions, classes, ...) enclosing the cursor in a header at the top
     /// of each view. Defaults to false.
     pub breadcrumbs: bool,
+    /// Show a scrollbar on the right of each view. Defaults to false.
+    pub scrollbar: bool,
     /// Animate the view when it jumps by more than a line.
     pub smooth_scroll: SmoothScroll,
     /// Maximum number of frames per second for animations and asynchronous redraws.
@@ -1275,6 +1277,7 @@ impl Default for Config {
             auto_save: AutoSave::default(),
             auto_reload: AutoReload::default(),
             breadcrumbs: false,
+            scrollbar: false,
             smooth_scroll: SmoothScroll::default(),
             fps: 60,
             idle_timeout: Duration::from_millis(250),
@@ -1630,6 +1633,7 @@ impl Editor {
         let config = self.config();
         let mut view = View::new(doc, config.gutters.clone());
         view.breadcrumbs = config.breadcrumbs;
+        view.scrollbar = config.scrollbar;
         view
     }
 
@@ -2071,6 +2075,7 @@ impl Editor {
             view.sync_changes(doc);
             view.gutters = config.gutters.clone();
             view.breadcrumbs = config.breadcrumbs;
+            view.scrollbar = config.scrollbar;
             view.ensure_cursor_in_view(doc, config.scrolloff)
         }
     }
