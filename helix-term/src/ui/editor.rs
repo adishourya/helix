@@ -281,13 +281,17 @@ impl EditorView {
         let thumb = view.scrollbar_thumb(doc).unwrap_or_default();
         for row in 0..bar.height {
             let color = if thumb.contains(&row) {
-                style.fg
+                style.fg.unwrap_or(Color::Reset)
+            } else if let Some(track) = style.bg {
+                track
             } else {
-                style.bg
+                // Without a track color, leave the track blank rather than drawing it in the
+                // terminal's text color, which would make it indistinguishable from the thumb.
+                continue;
             };
             let cell = &mut surface[(bar.x, bar.y + row)];
             cell.set_symbol("▐");
-            cell.set_fg(color.unwrap_or(Color::Reset));
+            cell.set_fg(color);
         }
     }
 
