@@ -1404,6 +1404,8 @@ pub struct Editor {
     redraw_timer: Pin<Box<Sleep>>,
     auto_reload_timer: Pin<Box<Sleep>>,
     pub scroll_animations: ScrollAnimations,
+    /// Whether the terminal reported support for true color, detected on startup.
+    pub terminal_true_color: bool,
     /// Started on the first auto-reload check if `auto-reload.watch` is enabled.
     file_watcher: Option<FileWatcher>,
     last_motion: Option<Motion>,
@@ -1551,6 +1553,7 @@ impl Editor {
                 interval => Duration::from_millis(interval),
             })),
             scroll_animations: ScrollAnimations::default(),
+            terminal_true_color: false,
             file_watcher: None,
             last_motion: None,
             last_completion: None,

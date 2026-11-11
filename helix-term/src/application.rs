@@ -479,9 +479,9 @@ impl Application {
         terminal: &mut Terminal,
         mode: Option<theme::Mode>,
     ) {
-        let true_color = terminal.backend().supports_true_color()
-            || config.editor.true_color
-            || crate::true_color();
+        editor.terminal_true_color = terminal.backend().supports_true_color();
+        let true_color =
+            editor.terminal_true_color || config.editor.true_color || crate::true_color();
         let theme = config
             .theme
             .as_ref()

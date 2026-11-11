@@ -1106,7 +1106,9 @@ fn force_cquit(cx: &mut compositor::Context, args: Args, event: PromptEvent) -> 
 }
 
 fn theme(cx: &mut compositor::Context, args: Args, event: PromptEvent) -> anyhow::Result<()> {
-    let true_color = cx.editor.config.load().true_color || crate::true_color();
+    // Same check as for the configured theme on startup.
+    let true_color =
+        cx.editor.terminal_true_color || cx.editor.config.load().true_color || crate::true_color();
     match event {
         PromptEvent::Abort => {
             cx.editor.unset_theme_preview()?;

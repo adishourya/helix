@@ -949,3 +949,29 @@ async fn align_selections_with_varying_columns() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn theme_command_uses_detected_true_color_support() -> anyhow::Result<()> {
+    if std::env::var_os("COLORTERM").is_some() {
+        // `$COLORTERM` would enable true color regardless of the detection.
+        return Ok(());
+    }
+    let mut app = helpers::AppBuilder::new().build()?;
+    let loaded = app.editor.theme_loader.load("onedark")?;
+    assert!(!loaded.is_16_color());
+
+    // Like a terminal that answered the true color query on startup.
+    app.editor.terminal_true_color = true;
+    test_key_sequence(
+        &mut app,
+        Some(":theme onedark<ret>"),
+        Some(&|app| {
+            assert_eq!("onedark", app.editor.theme.name());
+            assert_status_not_error(&app.editor);
+        }),
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
